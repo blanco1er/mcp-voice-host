@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCP Apps sandbox proxy</title>
+<style>html,body{margin:0;height:100%;background:transparent;overflow:hidden}iframe{border:0;width:100%;height:100%;display:block;background:transparent;color-scheme:normal}</style>
+</head>
+<body>
+<script>
+// MCP Apps sandbox proxy (spec 2026-01-26, "Sandbox proxy"). The outer frame on its own origin: it receives the
+// View's HTML from the host (ui/notifications/sandbox-resource-ready), loads it in an inner iframe, and relays every
+// other message in both directions. The host already injected the CSP <meta>; when mcp-voice-host's CLI serves this
+// page, the same policy is also set as an HTTP header, which the View cannot alter.
+(() => {
+  if (window.self === window.top) {
+    document.body.textContent = 'This is the MCP Apps sandbox proxy of mcp-voice-host. It only runs inside the host page.';
+    return;
+  }
+  const params = new URLSearchParams(location.search);
+  let referrer = '';
+  try { referrer = new URL(document.referrer).origin; } catch {}
+  const HOST = params.get('host') || referrer;
+  if (!HOST || (referrer && referrer !== HOST)) { console.error('[sandbox] refused: embedded by an unexpected origin', referrer); return; }
+  // Self-test: the host page must be out of reach from here.
+  try { void window.top.document; console.error('[sandbox] refused: not isolated from the host'); return; } catch {}
+
+  const PERMISSIONS = { camera: 'camera', microphone: 'microphone', geolocation: 'geolocation', clipboardWrite: 'clipboard-write' };
+  let inner = null;
+  const load = ({ html, sandbox, permissions }) => {
+    inner?.remove();
+    inner = document.createElement('iframe');
+    inner.setAttribute('sandbox', typeof sandbox === 'string' ? sandbox : 'allow-scripts allow-same-origin allow-forms');
+    const allow = Object.keys(permissions || {}).map((k) => PERMISSIONS[k]).filter(Boolean);
+    if (allow.length) inner.setAttribute('allow', allow.join('; '));
+    inner.setAttribute('title', 'MCP App view');
+    document.body.appendChild(inner);
+    const doc = inner.contentDocument;
+    if (doc) { doc.open(); doc.write(String(html || '')); doc.close(); } else inner.srcdoc = String(html || '');
+  };
+
+  window.addEventListener('message', (e) => {
+    const m = e.data;
+    if (e.source === window.parent) {
+      if (e.origin !== HOST || !m || m.jsonrpc !== '2.0') return;
+      if (m.method === 'ui/notifications/sandbox-resource-ready') return load(m.params || {});
+      if (typeof m.method === 'string' && m.method.startsWith('ui/notifications/sandbox-')) return;
+      inner?.contentWindow?.postMessage(m, '*');
+    } else if (inner && e.source === inner.contentWindow) {
+      if (!m || m.jsonrpc !== '2.0') return;
+      if (typeof m.method === 'string' && m.method.startsWith('ui/notifications/sandbox-')) return;
+      window.parent.postMessage(m, HOST);
+    }
+  });
+  window.parent.postMessage({ jsonrpc: '2.0', method: 'ui/notifications/sandbox-proxy-ready', params: {} }, HOST);
+})();
+</script>
+</body>
+</html>

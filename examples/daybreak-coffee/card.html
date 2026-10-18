@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daybreak Coffee</title>
+<style>
+/* Authored on Alexa's 768×480 base canvas, then one root zoom per surface (Alexa+ Visual foundations).
+   Card colors are the Alexa+ card tokens; the brand shows only in the one primary action. */
+:root { color-scheme: light dark; --card: #ffffff; --outer: #faf9fb; --inner: #ffffff; --text: #0b0c0e; --text-2: #5f6670; --line: rgba(60, 60, 67, .16); --brand: #a84b14; --brand-text: #a84b14; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif; }
+:root[data-theme="dark"] { --card: #14181e; --outer: #14181e; --inner: #1b2028; --text: #ffffff; --text-2: #a7afbb; --line: rgba(255, 255, 255, .12); --brand-text: #e8a272; }
+html, body { margin: 0; background: transparent; color: var(--text); }
+body { padding: 0; -webkit-font-smoothing: antialiased; }
+.card { background: var(--card); border-radius: 16px; padding: 20px 24px 22px; display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+.ctx { margin: 0; font-size: 14px; color: var(--text-2); display: flex; justify-content: space-between; gap: 12px; }
+h1 { margin: 0; font-size: 28px; line-height: 1.15; letter-spacing: -0.01em; font-weight: 700; }
+.rows { list-style: none; margin: 0; padding: 0; display: grid; }
+.rows li + li { border-top: 1px solid var(--line); }
+.rows button { all: unset; box-sizing: border-box; width: 100%; min-height: 48px; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 10px 2px; cursor: pointer; font-size: 18px; }
+.rows button:focus-visible { outline: 3px solid color-mix(in srgb, var(--brand) 60%, transparent); outline-offset: 2px; border-radius: 8px; }
+.rows .name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rows .price { color: var(--text-2); font-variant-numeric: tabular-nums; }
+.total { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.total b { font-size: 40px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.total span { font-size: 16px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.line { margin: 0; font-size: 16px; color: var(--text-2); }
+.action { justify-self: start; min-height: 48px; padding: 0 28px; border-radius: 999px; border: 0; background: var(--brand); color: #fff; font: 600 18px/1 inherit; font-family: inherit; cursor: pointer; }
+.action:active { transform: scale(.97); }
+.action[disabled] { opacity: .6; cursor: default; }
+.done { display: inline-flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; color: var(--brand-text); }
+.done svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.skeleton { height: 16px; border-radius: 8px; background: var(--line); }
+@media (max-width: 520px) { .card { padding: 16px 18px 18px; } h1 { font-size: 24px; } .total b { font-size: 34px; } }
+@media (prefers-reduced-motion: reduce) { .action:active { transform: none; } }
+</style>
+</head>
+<body>
+<main class="card" id="card" aria-live="polite">
+  <p class="ctx"><span>Daybreak Coffee</span><span>Pine Street</span></p>
+  <div class="skeleton" style="width:60%;height:28px"></div>
+  <div class="skeleton" style="width:85%"></div>
+  <div class="skeleton" style="width:40%"></div>
+</main>
+<script>
+// Minimal MCP Apps View (spec 2026-01-26): ui/initialize → initialized → tool-input / tool-result.
+let nextId = 0;
+const waiting = new Map();
+const rpc = (method, params) => new Promise((resolve, reject) => { const id = ++nextId; waiting.set(id, { resolve, reject }); parent.postMessage({ jsonrpc: '2.0', id, method, params }, '*'); });
+const notify = (method, params) => parent.postMessage({ jsonrpc: '2.0', method, params }, '*');
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const usd = (n) => '$' + Number(n).toFixed(2);
+const CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17 19 7"/></svg>';
+const card = document.getElementById('card');
+let args = {};
+
+function applyContext(ctx = {}) {
+  if (ctx.theme) document.documentElement.dataset.theme = ctx.theme;
+  const w = ctx.containerDimensions?.width || ctx.containerDimensions?.maxWidth;
+  // one root scale: 1.0 on narrow surfaces, up to 1.667 on a 1280-wide Echo Show canvas
+  if (w) document.documentElement.style.zoom = String(Math.max(1, Math.min(1.667, w / 768)));
+}
+
+function render(result) {
+  const d = result?.structuredContent || {};
+  const head = '<p class="ctx"><span>Daybreak Coffee</span><span>Pine Street</span></p>';
+  if (result?.isError) { card.innerHTML = `${head}<h1>${esc(result.content?.[0]?.text || 'Something went wrong.')}</h1>`; return; }
+  if (d.kind === 'menu') {
+    card.innerHTML = `${head}<h1>${esc(d.title)}</h1><ul class="rows">${d.drinks.map((x) => `<li><button type="button" data-say="Order a medium ${esc(x.name)}"><span class="name">${esc(x.name)}</span><span class="price">${usd(x.price)}</span></button></li>`).join('')}</ul>`;
+    card.querySelectorAll('[data-say]').forEach((b) => b.onclick = () => rpc('ui/message', { role: 'user', content: { type: 'text', text: b.dataset.say } }));
+  } else if (d.kind === 'quote') {
+    const q = d.quote;
+    card.innerHTML = `${head}<h1>${esc(q.label)}</h1><p class="total"><b>${usd(q.total)}</b><span>${usd(q.price)} + ${usd(q.tax)} tax</span></p><p class="line">Ready in about ${q.ready_in_minutes} minutes</p><button class="action" type="button" id="place">Place order</button>`;
+    document.getElementById('place').onclick = async (e) => {
+      e.currentTarget.disabled = true; e.currentTarget.textContent = 'Placing…';
+      try { render(await rpc('tools/call', { name: 'order_drink', arguments: { ...args, confirmation_token: d.confirmation_token } })); }
+      catch (err) { e.currentTarget.disabled = false; e.currentTarget.textContent = 'Try again'; }
+    };
+  } else if (d.kind === 'receipt') {
+    const o = d.order;
+    card.innerHTML = `${head}<span class="done">${CHECK}Order placed</span><h1>${esc(o.label)}</h1><p class="total"><b>${usd(o.total)}</b><span>${o.ready_at ? 'ready at ' + esc(o.ready_at) : ''}</span></p>`;
+  } else {
+    card.innerHTML = `${head}<h1>${esc(result?.content?.[0]?.text || '')}</h1>`;
+  }
+}
+
+addEventListener('message', (e) => {
+  if (e.source !== parent) return;
+  const m = e.data;
+  if (!m || m.jsonrpc !== '2.0') return;
+  if (m.id != null && !m.method) { const w = waiting.get(m.id); if (w) { waiting.delete(m.id); m.error ? w.reject(m.error) : w.resolve(m.result); } return; }
+  if (m.method === 'ui/notifications/tool-input') args = m.params?.arguments || {};
+  else if (m.method === 'ui/notifications/tool-result') render(m.params);
+  else if (m.method === 'ui/notifications/host-context-changed') applyContext(m.params);
+  else if (m.method === 'ui/resource-teardown') parent.postMessage({ jsonrpc: '2.0', id: m.id, result: {} }, '*');
+});
+
+new ResizeObserver(() => notify('ui/notifications/size-changed', { width: Math.ceil(document.documentElement.scrollWidth), height: Math.ceil(document.documentElement.getBoundingClientRect().height * (parseFloat(document.documentElement.style.zoom) || 1)) })).observe(document.documentElement);
+
+rpc('ui/initialize', { protocolVersion: '2026-01-26', appInfo: { name: 'daybreak-card', version: '1.0.0' }, appCapabilities: { availableDisplayModes: ['inline'] } })
+  .then((r) => { applyContext(r?.hostContext); notify('ui/notifications/initialized', {}); });
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "mcp-voice-host",
+  "version": "0.1.0",
+  "description": "Voice-first MCP Apps host: test any MCP server as an Alexa+-style add-on (Echo Show, phone, screenless Echo Dot), with a voice lint based on Amazon's public design guide.",
+  "type": "module",
+  "bin": { "mcp-voice-host": "bin/mcp-voice-host.mjs" },
+  "files": ["bin", "server", "web", "examples", "README.md", "LICENSE"],
+  "scripts": {
+    "start": "node bin/mcp-voice-host.mjs",
+    "demo": "node bin/mcp-voice-host.mjs --demo",
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "engines": { "node": ">=20" },
+  "keywords": ["mcp", "model-context-protocol", "mcp-apps", "alexa", "voice", "simulator", "echo-show", "streamable-http", "lint"],
+  "license": "MIT",
+  "author": "Blanco (https://github.com/blanco1er)"
+}

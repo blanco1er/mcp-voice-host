@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en" data-ui-auto="off">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MCP Voice Host</title>
+<meta name="description" content="Open-source, voice-first MCP Apps host: test any MCP server as an Alexa+-style add-on on Echo Show, phone and screenless Echo Dot frames, with a voice lint.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000'/%3E%3Cpath d='M20 30v4M28 24v16M36 18v28M44 26v12' stroke='%23fff' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="design-system/tokens.css">
+<link rel="stylesheet" href="design-system/components.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="ui-root" data-device="show15" data-state="idle" data-screen="home" data-conn="idle">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="8.5" y="3" width="7" height="11.5" rx="3.5"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
+    <symbol id="i-braces" viewBox="0 0 24 24"><path d="M8.5 4H8a2 2 0 0 0-2 2v3.5A2.5 2.5 0 0 1 3.5 12 2.5 2.5 0 0 1 6 14.5V18a2 2 0 0 0 2 2h.5M15.5 4h.5a2 2 0 0 1 2 2v3.5a2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0-2.5 2.5V18a2 2 0 0 1-2 2h-.5"/></symbol>
+    <symbol id="i-lint" viewBox="0 0 24 24"><path d="M4 6.5h9M4 12h7M4 17.5h9"/><path d="m15 15.5 2 2 4-4.5"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17 19 7"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9.5 5.5 6 6.5-6 6.5"/></symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3.5v4M15 3.5v4M6.5 7.5h11v3a5.5 5.5 0 0 1-11 0v-3ZM12 16v4.5"/></symbol>
+  </svg>
+
+  <header class="ui-toolbar bar">
+    <div class="bar-id">
+      <b>MCP Voice Host</b>
+      <span id="barServer">Not connected</span>
+    </div>
+    <fieldset class="ui-segmented bar-devices" aria-label="Device">
+      <label><input type="radio" name="device" value="show15" checked>Show 15</label>
+      <label><input type="radio" name="device" value="show8">Show 8</label>
+      <label><input type="radio" name="device" value="phone">Phone</label>
+      <label><input type="radio" name="device" value="dot">Dot</label>
+    </fieldset>
+    <div class="bar-tools ui-toolbar__group ui-glass">
+      <button class="ui-icon-button" id="theme" type="button" aria-label="Dark appearance" aria-pressed="false" title="Light or dark appearance"><svg class="ui-icon"><use href="#i-moon"/></svg></button>
+      <button class="ui-button bar-btn" id="lintToggle" type="button" aria-expanded="false" aria-controls="inspector" title="Voice lint (L)"><svg class="ui-icon"><use href="#i-lint"/></svg><span class="lbl">Lint</span><span class="count" id="lintCount" hidden></span></button>
+      <button class="ui-button bar-btn" id="trafficToggle" type="button" aria-expanded="false" aria-controls="inspector" title="MCP traffic (T)"><svg class="ui-icon"><use href="#i-braces"/></svg><span class="lbl">Traffic</span></button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <section class="room" id="room" aria-label="Simulated device">
+      <div class="device" id="device">
+        <div class="bezel" id="bezel">
+          <span class="cam" aria-hidden="true"></span>
+          <div class="screen-box" id="screenBox">
+            <div class="screen" id="screen">
+              <div class="s-top">
+                <p class="heard" id="heard" aria-live="polite"></p>
+                <span class="clock" id="clock"></span>
+              </div>
+              <div class="home" id="home">
+                <div class="home-clock"><div class="home-time" id="homeTime"></div><div class="home-date" id="homeDate"></div></div>
+                <div class="home-widget" id="homeWidget" aria-live="polite">
+                  <p class="hw-ctx"><span>MCP server</span><span id="hwState">Not connected</span></p>
+                  <p class="hw-title" id="hwTitle">Connect a server to start.</p>
+                  <ul class="hw-try" id="hwTry"></ul>
+                </div>
+              </div>
+              <div class="card-slot" id="cardSlot"></div>
+              <div class="s-bottom">
+                <div class="s-row">
+                  <ol class="trail" id="trail" aria-label="Tool calls this turn"></ol>
+                  <div class="ask" id="ask" hidden><svg aria-hidden="true"><use href="#i-mic"/></svg><span id="askText">Say “yes” to confirm</span></div>
+                </div>
+                <p class="reply" id="reply" aria-live="polite"></p>
+              </div>
+              <div class="lightbar" aria-hidden="true"><span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dot" id="dot">
+        <div class="sphere" aria-hidden="true"><div class="ring"></div></div>
+        <div class="dot-shadow" aria-hidden="true"></div>
+        <figure class="dot-cc">
+          <figcaption>Captions are part of this test bench. An Echo Dot has no screen: the voice must carry everything.</figcaption>
+          <p class="cc-you" id="dotYou"></p>
+          <p class="cc-voice" id="dotSays" aria-live="polite"></p>
+        </figure>
+      </div>
+      <p class="device-note" id="deviceNote"></p>
+    </section>
+
+    <aside class="panel" aria-label="Server and voice">
+      <form class="conn" id="connForm" autocomplete="off">
+        <label class="ui-field__label" for="serverUrl">MCP server (Streamable HTTP)</label>
+        <div class="conn-row">
+          <input class="ui-input" id="serverUrl" type="url" inputmode="url" spellcheck="false" placeholder="https://example.com/mcp" enterkeyhint="go" required>
+          <button class="ui-button ui-button--prominent" id="connect" type="submit">Connect</button>
+        </div>
+        <p class="conn-status" id="connStatus" aria-live="polite"><span class="ui-status" id="connDot">Not connected</span><span id="connDetail"></span></p>
+        <div class="conn-try" id="connTry"></div>
+      </form>
+
+      <div class="ui-voice talk-voice" id="voice" data-state="idle">
+        <button class="mic" id="mic" type="button" aria-label="Talk"><svg class="ui-icon"><use href="#i-mic"/></svg></button>
+        <div class="talk-body">
+          <div class="talk-row"><b id="micLabel" aria-live="polite">Tap to talk</b><div class="ui-voice__wave" id="wave" aria-hidden="true"></div></div>
+          <span class="talk-hint" id="micHint">Or press <kbd>Space</kbd>. Typing works in every browser.</span>
+        </div>
+      </div>
+
+      <form id="typeForm" class="type" autocomplete="off">
+        <label class="ui-field__label" for="typeInput">Or type what you would say</label>
+        <div class="type-row">
+          <input class="ui-input" id="typeInput" enterkeyhint="send" placeholder="Find iced drinks">
+          <button class="send" id="send" type="submit" aria-label="Send" disabled><svg class="ui-icon"><use href="#i-up"/></svg></button>
+        </div>
+      </form>
+
+      <section class="ui-list-section tools" aria-labelledby="toolsHead">
+        <div class="ui-list__header"><strong id="toolsHead">Tools</strong><span id="toolsCount"></span></div>
+        <ul class="ui-list" id="toolList"><li class="tools-empty">Connect a server to list its tools.</li></ul>
+        <p class="ui-list__footer" id="toolsFoot">Speak or type a request: a keyword matcher picks the tool (no language model), fills what it can, and asks for the rest. Or open a tool to fill its form.</p>
+      </section>
+
+      <div class="prefs">
+        <fieldset class="ui-segmented prefs-voice" aria-label="Voice output">
+          <label><input type="radio" name="tts" value="voice" checked>Voice</label>
+          <label><input type="radio" name="tts" value="captions">Captions only</label>
+        </fieldset>
+        <p class="fine" id="fine">Not affiliated with Amazon. Echo and Alexa are trademarks of Amazon.com, Inc.</p>
+      </div>
+    </aside>
+  </main>
+
+  <aside class="inspector" id="inspector" hidden aria-label="Inspector">
+    <div class="insp-head">
+      <fieldset class="ui-segmented insp-tabs" aria-label="Inspector view">
+        <label><input type="radio" name="insp" value="lint" checked>Lint</label>
+        <label><input type="radio" name="insp" value="traffic">Traffic</label>
+      </fieldset>
+      <button class="ui-button" id="clearInsp" type="button">Clear</button>
+      <button class="ui-icon-button" id="closeInsp" type="button" aria-label="Close inspector"><svg class="ui-icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="insp-body" id="lintView">
+      <p class="lint-sum" id="lintSum">No findings yet. Every tool result is checked against Amazon’s public Alexa+ add-on design guide.</p>
+      <ol class="lint-list" id="lintList"></ol>
+      <p class="lint-foot">Heuristic checks point at something worth a look; they do not certify anything. Amazon’s certification and its Local Inspector remain the reference.</p>
+    </div>
+    <div class="insp-body traffic" id="trafficView" hidden>
+      <p class="session" id="sessionInfo">No session.</p>
+      <ol class="log" id="log"></ol>
+    </div>
+  </aside>
+
+  <dialog class="ui-sheet" id="toolSheet" aria-labelledby="toolSheetTitle">
+    <div class="ui-sheet__grabber"></div>
+    <form method="dialog" id="toolSheetForm" novalidate>
+      <div class="ui-sheet__bar">
+        <button class="ui-button ui-button--plain" value="cancel" type="button" id="toolSheetCancel">Cancel</button>
+        <h2 class="ui-sheet__title" id="toolSheetTitle">Tool</h2>
+        <button class="ui-button ui-button--prominent ui-button--sm" id="toolSheetRun" type="submit">Run</button>
+      </div>
+      <div class="ui-sheet__body">
+        <p class="sheet-desc" id="toolSheetDesc"></p>
+        <div id="toolSheetFields"></div>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
