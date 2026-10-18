@@ -58,6 +58,7 @@ function listen(server, port, host) {
  * @param {string} [o.bind]         interface, default 127.0.0.1
  * @param {Record<string,string>} [o.headers] headers added to every proxied MCP request (e.g. Authorization)
  * @param {string} [o.ttsUrl]       optional TTS endpoint (POST {text, voice} → audio)
+ * @param {string} [o.brainUrl]     optional brain endpoint (POST {utterance, tools} → {tool, arguments} | {say})
  * @param {boolean} [o.proxy]       enable the MCP proxy (default true)
  * @param {string} [o.root]         static root (default web/)
  */
@@ -105,15 +106,16 @@ export async function startHost(o = {}) {
     Readable.fromWeb(upstream.body).on('error', () => res.end()).pipe(res);
   }
 
-  async function tts(req, res) {
-    if (!o.ttsUrl) return send(res, 404, { error: 'No TTS endpoint configured (--tts-url).' });
+  // /tts and /brain: forward a small JSON POST to the endpoint given on the command line.
+  async function forward(req, res, target, what, limit = 64 * 1024) {
+    if (!target) return send(res, 404, { error: `No ${what} endpoint configured.` });
     if (req.headers['x-mvh-token'] !== token || !sameSite(req)) return send(res, 403, { error: 'Forbidden.' });
     try {
-      const body = await readBody(req, 64 * 1024);
-      const r = await fetch(o.ttsUrl, { method: 'POST', headers: { 'content-type': 'application/json' }, body });
-      res.writeHead(r.status, { 'content-type': r.headers.get('content-type') || 'audio/mpeg', 'cache-control': 'no-store' });
+      const body = await readBody(req, limit);
+      const r = await fetch(target, { method: 'POST', headers: { 'content-type': 'application/json' }, body });
+      res.writeHead(r.status, { 'content-type': r.headers.get('content-type') || 'application/octet-stream', 'cache-control': 'no-store' });
       if (r.body) Readable.fromWeb(r.body).pipe(res); else res.end();
-    } catch (err) { send(res, 502, { error: `TTS endpoint unreachable (${err.message}).` }); }
+    } catch (err) { send(res, 502, { error: `The ${what} endpoint is unreachable (${err.message}).` }); }
   }
 
   function serveStatic(req, res, pathname) {
@@ -137,7 +139,8 @@ export async function startHost(o = {}) {
     if (!loopbackHost(req)) return send(res, 421, 'Misdirected request');
     try {
       if (url.pathname === '/proxy') return await proxy(req, res);
-      if (url.pathname === '/tts' && req.method === 'POST') return await tts(req, res);
+      if (url.pathname === '/tts' && req.method === 'POST') return await forward(req, res, o.ttsUrl, 'TTS');
+      if (url.pathname === '/brain' && req.method === 'POST') return await forward(req, res, o.brainUrl, 'brain', 1024 * 1024);
       if (url.pathname === '/config.json') {
         return send(res, 200, {
           version: VERSION,
@@ -145,6 +148,7 @@ export async function startHost(o = {}) {
           proxy: proxyOn ? { url: '/proxy', token } : null,
           sandbox: { url: `${sandboxOrigin}/sandbox.html`, isolation: 'origin' },
           tts: o.ttsUrl ? { provider: 'http', url: '/tts' } : { provider: 'browser' },
+          brain: o.brainUrl ? { url: '/brain' } : null,
           headersConfigured: Object.keys(extraHeaders),
         });
       }

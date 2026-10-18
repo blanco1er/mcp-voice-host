@@ -94,7 +94,7 @@ addEventListener('message', (e) => {
   else if (m.method === 'ui/resource-teardown') parent.postMessage({ jsonrpc: '2.0', id: m.id, result: {} }, '*');
 });
 
-new ResizeObserver(() => notify('ui/notifications/size-changed', { width: Math.ceil(document.documentElement.scrollWidth), height: Math.ceil(document.documentElement.getBoundingClientRect().height * (parseFloat(document.documentElement.style.zoom) || 1)) })).observe(document.documentElement);
+new ResizeObserver(() => notify('ui/notifications/size-changed', { width: Math.ceil(document.documentElement.scrollWidth), height: Math.ceil(document.documentElement.getBoundingClientRect().height) })).observe(document.documentElement);
 
 rpc('ui/initialize', { protocolVersion: '2026-01-26', appInfo: { name: 'daybreak-card', version: '1.0.0' }, appCapabilities: { availableDisplayModes: ['inline'] } })
   .then((r) => { applyContext(r?.hostContext); notify('ui/notifications/initialized', {}); });

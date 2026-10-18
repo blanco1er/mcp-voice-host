@@ -17,7 +17,7 @@ export const SOURCES = {
 // What each rule checks, with the guideline it comes from (shown in the inspector and in the README).
 export const RULES = [
   { id: 'speech-formatting', severity: 'warn', heuristic: true, source: 'displayModes', title: 'Formatting characters in spoken text',
-    guideline: 'Your tool’s data must remain intelligible without any visual support and be free of text formatting artifacts (such as pipes).' },
+    guideline: 'Your tool’s data must remain intelligible without any visual support and be free of text formatting artifacts (such as pipes). Emoji are flagged too: a voice reads them out by name or skips them.' },
   { id: 'speech-url', severity: 'warn', heuristic: true, source: 'displayModes', title: 'Web address in spoken text',
     guideline: 'Voice-only is the always-on baseline: a link cannot be followed by ear.' },
   { id: 'speech-ids', severity: 'warn', heuristic: true, source: 'functional', title: 'Internal ID in spoken text',
@@ -93,6 +93,7 @@ function firstMatch(re, text) {
 
 const RE = {
   pipe: /\s\|\s|\|\s*-{3,}|^\s*\|/m,
+  emoji: /\p{Extended_Pictographic}/u,
   markdown: /\*\*[^*]+\*\*|__[^_]+__|^#{1,6}\s|`[^`]+`|^\s*[-*•]\s+\S|\[[^\]]+\]\([^)]+\)|<\/?(b|i|strong|em|br|p|div|span|ul|li)\b[^>]*>/m,
   url: /\bhttps?:\/\/\S+|\bwww\.[a-z0-9-]+\.[a-z]{2,}\S*|\b[\w.+-]+@[\w-]+\.[\w.]+\b/i,
   uuid: /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i,
@@ -173,7 +174,7 @@ export function lintCall({ tool, args = {}, result, ms, device = 'show8', tools 
     let m;
     if (looksLikeJson(speech)) add('speech-json', 'The first text block is JSON. A voice-only device would read it verbatim.', { excerpt: speech.slice(0, 90) + (speech.length > 90 ? '…' : '') });
     else {
-      if ((m = firstMatch(RE.pipe, speech)) || (m = firstMatch(RE.markdown, speech))) add('speech-formatting', `“${m.text.trim()}” would be read aloud or dropped.`, { excerpt: excerpt(speech, m.index, m.text.length) });
+      if ((m = firstMatch(RE.pipe, speech)) || (m = firstMatch(RE.markdown, speech)) || (m = firstMatch(RE.emoji, speech))) add('speech-formatting', `“${m.text.trim()}” would be read aloud or dropped.`, { excerpt: excerpt(speech, m.index, m.text.length) });
       if ((m = firstMatch(RE.uuid, speech)) || (m = firstMatch(RE.hex, speech)) || (m = firstMatch(RE.prefixedId, speech)) || (m = firstMatch(RE.mixedToken, speech))) add('speech-ids', `“${m.text}” looks like an internal identifier.`, { excerpt: excerpt(speech, m.index, m.text.length) });
     }
     if ((m = firstMatch(RE.url, speech))) add('speech-url', `“${m.text.slice(0, 48)}” cannot be used by ear.`, { excerpt: excerpt(speech, m.index, Math.min(m.text.length, 48)) });

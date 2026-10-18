@@ -92,7 +92,7 @@ export class AppsHost {
     if (m.method === 'ui/notifications/sandbox-proxy-ready') {
       const params = { html: this.pendingHtml, csp: this.pendingMeta?.csp || {} };
       if (this.pendingMeta?.permissions) params.permissions = this.pendingMeta.permissions;
-      this.on.log?.('host→sandbox', { jsonrpc: '2.0', method: 'ui/notifications/sandbox-resource-ready', params: { ...params, html: `[${params.html.length} characters]` } });
+      this.on.log?.('host → sandbox', { jsonrpc: '2.0', method: 'ui/notifications/sandbox-resource-ready', params: { ...params, html: `[${params.html.length} characters]` } });
       this.frame.contentWindow.postMessage({ jsonrpc: '2.0', method: 'ui/notifications/sandbox-resource-ready', params }, this.sandboxOrigin);
       return;
     }

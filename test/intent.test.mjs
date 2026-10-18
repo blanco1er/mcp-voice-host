@@ -81,3 +81,18 @@ test('form values are coerced to the schema', () => {
   assert.deepEqual(coerceValue({ type: 'boolean' }, false), { value: false });
   assert.deepEqual(coerceValue({ type: 'string' }, '  '), { empty: true });
 });
+
+test('HTTP brain: uses the endpoint, refuses unknown or app-only tools, falls back to keywords', async () => {
+  const { httpBrain } = await import('../web/lib/intent.js');
+  const answer = (body) => async () => ({ ok: true, json: async () => body });
+  const ok = await httpBrain({ url: '/brain', fetchImpl: answer({ tool: 'order_drink', arguments: { drink: 'chai' } }) }).route('a chai please', all);
+  assert.equal(ok.tool.name, 'order_drink');
+  assert.deepEqual(ok.missing, ['size']);
+  const say = await httpBrain({ url: '/brain', fetchImpl: answer({ say: 'Which shop?' }) }).route('x', all);
+  assert.equal(say.say, 'Which shop?');
+  const bad = await httpBrain({ url: '/brain', fetchImpl: answer({ tool: 'refresh_card' }) }).route('find tea', all);
+  assert.equal(bad.tool.name, 'find_drinks');
+  assert.match(bad.brainError, /unknown tool/);
+  const down = await httpBrain({ url: '/brain', fetchImpl: async () => { throw new Error('offline'); } }).route('store hours', all);
+  assert.equal(down.tool.name, 'store_hours');
+});

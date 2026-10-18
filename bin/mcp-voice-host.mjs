@@ -18,6 +18,8 @@ Options
   --header "K: V"       add a header to every MCP request (repeatable)
   --bearer-env <NAME>   send "Authorization: Bearer $NAME" (the token never appears on screen)
   --tts-url <url>       TTS endpoint: POST {text, voice} returns audio (e.g. your Polly proxy)
+  --brain-url <url>     replace the keyword matcher: POST {utterance, tools, context} returns
+                        {tool, arguments} or {say} (plug any LLM, e.g. Bedrock)
   --no-proxy            browser talks to the server directly (the server must allow CORS)
   --no-open             do not open the browser
   -h, --help            this help
@@ -39,6 +41,7 @@ function parse(argv) {
     else if (a === '--header' || a === '-H') { const h = next(); const i2 = h.indexOf(':'); if (i2 < 1) throw new Error(`Bad header "${h}" (use "Name: value")`); o.headers[h.slice(0, i2).trim().toLowerCase()] = h.slice(i2 + 1).trim(); }
     else if (a === '--bearer-env') { const n = next(); if (!process.env[n]) throw new Error(`Environment variable ${n} is empty`); o.headers.authorization = `Bearer ${process.env[n]}`; }
     else if (a === '--tts-url') o.ttsUrl = next();
+    else if (a === '--brain-url') o.brainUrl = next();
     else if (a === '--no-proxy') o.proxy = false;
     else if (a === '--no-open') o.open = false;
     else if (!a.startsWith('-') && !o.server && /^https?:\/\//.test(a)) o.server = a;

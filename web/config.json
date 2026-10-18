@@ -1,0 +1,7 @@
+{
+  "static": true,
+  "server": "",
+  "proxy": null,
+  "sandbox": { "url": "sandbox.html", "isolation": "opaque" },
+  "tts": { "provider": "browser" }
+}

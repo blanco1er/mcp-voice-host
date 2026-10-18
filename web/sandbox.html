@@ -4,7 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MCP Apps sandbox proxy</title>
-<style>html,body{margin:0;height:100%;background:transparent;overflow:hidden}iframe{border:0;width:100%;height:100%;display:block;background:transparent;color-scheme:normal}</style>
+<style>
+/* light dark everywhere: the frame, this page and the View then agree on one scheme, so no opaque backdrop is painted */
+:root{color-scheme:light dark}html,body{margin:0;height:100%;background:transparent;overflow:hidden}iframe{border:0;width:100%;height:100%;display:block;background:transparent;color-scheme:light dark}
+</style>
 </head>
 <body>
 <script>

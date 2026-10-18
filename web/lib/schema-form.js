@@ -75,7 +75,7 @@ export function buildForm(schema = {}, values = {}, idPrefix = 'f') {
       const ph = type === 'array' ? 'Comma-separated' : type === 'object' ? '{ … }' : '';
       field.innerHTML = `<label class="ui-field__label" for="${id}">${esc(label(key, p))}${req}</label>${long
         ? `<textarea class="ui-textarea" id="${id}" rows="3"${described} placeholder="${esc(ph)}">${esc(shown)}</textarea>`
-        : `<input class="ui-input" id="${id}" ${numeric ? `inputmode="${type === 'integer' ? 'numeric' : 'decimal'}"` : ''} autocomplete="off" enterkeyhint="go" value="${esc(shown)}"${described} placeholder="${esc(ph)}">`}${hint}<span class="ui-field__error" id="${id}-err" hidden></span>`;
+        : `<input class="ui-input" id="${id}" type="${({ email: 'email', uri: 'url', date: 'date', 'date-time': 'datetime-local' })[p.format] || 'text'}" ${numeric ? `inputmode="${type === 'integer' ? 'numeric' : 'decimal'}"` : ''} autocomplete="off" enterkeyhint="go" value="${esc(shown)}"${described} placeholder="${esc(ph)}">`}${hint}<span class="ui-field__error" id="${id}-err" hidden></span>`;
     }
     root.append(field);
   }

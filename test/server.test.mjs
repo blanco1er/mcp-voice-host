@@ -85,3 +85,17 @@ test('static files: index, no path traversal, no-store', async (t) => {
   const enc = await raw(host.port, '/%2e%2e/package.json', { headers: h });
   assert.notEqual(enc.status, 200);
 });
+
+test('/brain forwards to --brain-url with the token only', async (t) => {
+  const brain = http.createServer((req, res) => { let b = ''; req.on('data', (c) => (b += c)); req.on('end', () => { const { utterance } = JSON.parse(b); res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify({ say: `heard ${utterance}` })); }); });
+  await new Promise((r) => brain.listen(0, '127.0.0.1', r));
+  const host = await startHost({ brainUrl: `http://127.0.0.1:${brain.address().port}/` });
+  t.after(async () => { await host.close(); brain.close(); });
+  const h = { host: `localhost:${host.port}`, 'content-type': 'application/json' };
+  const body = JSON.stringify({ utterance: 'hi', tools: [] });
+  assert.equal((await raw(host.port, '/brain', { method: 'POST', headers: h, body })).status, 403);
+  const ok = await raw(host.port, '/brain', { method: 'POST', headers: { ...h, 'x-mvh-token': host.token }, body });
+  assert.deepEqual(JSON.parse(ok.body), { say: 'heard hi' });
+  const cfg = JSON.parse((await raw(host.port, '/config.json', { headers: h })).body);
+  assert.deepEqual(cfg.brain, { url: '/brain' });
+});

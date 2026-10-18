@@ -158,6 +158,35 @@ export function askFor(key, prop = {}) {
 }
 const listOr = (xs) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} or ${xs[xs.length - 1]}`);
 
+/**
+ * A brain behind an HTTP endpoint (the CLI forwards /brain to --brain-url).
+ * Request:  { utterance, tools: [{name, title, description, inputSchema}], context: {device, lastTool} }
+ * Response: { tool: "<name>", arguments: {…} }  or  { say: "…" }
+ * Any failure falls back to the keyword matcher, and is reported.
+ */
+export function httpBrain({ url, headers = {}, fetchImpl = (...a) => globalThis.fetch(...a), fallback }) {
+  return {
+    name: 'HTTP brain',
+    async route(utterance, tools, context = {}) {
+      try {
+        const visible = tools.filter(modelVisible).map(({ name, title, description, inputSchema }) => ({ name, title, description, inputSchema }));
+        const r = await fetchImpl(url, { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify({ utterance, tools: visible, context }) });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const out = await r.json();
+        if (out.say && !out.tool) return { say: String(out.say) };
+        const tool = tools.find((t) => t.name === out.tool && modelVisible(t));
+        if (!tool) throw new Error(`unknown tool “${out.tool}”`);
+        const args = out.arguments && typeof out.arguments === 'object' ? out.arguments : {};
+        const required = tool.inputSchema?.required || [];
+        return { tool, arguments: args, missing: required.filter((k) => !(k in args)), by: 'brain' };
+      } catch (err) {
+        const r = (fallback || keywordBrain).route(utterance, tools);
+        return { ...r, brainError: err.message };
+      }
+    },
+  };
+}
+
 /** The built-in keyword brain. */
 export const keywordBrain = {
   name: 'keyword matcher',

@@ -22,6 +22,7 @@ test('a clean, speakable answer has no findings', () => {
 test('pipes, markdown, IDs, URLs and tool names in speech', () => {
   assert.deepEqual(rules(lintCall({ tool: tool('a'), result: text('Order placed | Large latte | $5.96') })), ['speech-formatting']);
   assert.deepEqual(rules(lintCall({ tool: tool('a'), result: text('**Done.** Your latte is ready.') })), ['speech-formatting']);
+  assert.deepEqual(rules(lintCall({ tool: tool('a'), result: text('✅ User provided the requested information!') })), ['speech-formatting']);
   assert.deepEqual(rules(lintCall({ tool: tool('a'), result: text('Order ord_8F2kQ91xZ is placed.') })), ['speech-ids']);
   assert.deepEqual(rules(lintCall({ tool: tool('a'), result: text('Booking 3f2a9c1e-77b0-4c1e-9a7d-1b2c3d4e5f60 is confirmed.') })), ['speech-ids']);
   assert.deepEqual(rules(lintCall({ tool: tool('a'), result: text('Details at https://example.com/orders/12.') })), ['speech-url']);

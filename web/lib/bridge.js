@@ -38,7 +38,7 @@ export class ViewBridge {
   }
 
   log(dir, msg) { this.on.log?.(dir, msg); }
-  post(msg) { if (this.closed) return; this.log('host→view', msg); this.postRaw(msg); }
+  post(msg) { if (this.closed) return; this.log('host → view', msg); this.postRaw(msg); }
   notify(method, params) { this.post({ jsonrpc: '2.0', method, params }); }
   // Notifications that must wait for `initialized` are queued, then flushed in order.
   notifyWhenReady(method, params) {
@@ -97,7 +97,7 @@ export class ViewBridge {
   /** Handle one message from the View. Returns a promise for tests. */
   async handle(m) {
     if (this.closed || !m || m.jsonrpc !== '2.0') return;
-    this.log('view→host', m);
+    this.log('view → host', m);
     // a response to one of our requests (teardown)
     if (m.id !== undefined && m.id !== null && !m.method) {
       const w = this.waiters.get(m.id);

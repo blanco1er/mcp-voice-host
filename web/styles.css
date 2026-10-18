@@ -91,7 +91,7 @@ body[data-device="phone"] .home-widget { padding: 16px 16px 14px; border-radius:
 /* the card slot: an MCP App view, or the host's data-only rendering */
 .card-slot { min-height: 0; overflow: hidden auto; border-radius: calc(var(--u) * 16); scrollbar-width: none; }
 .card-slot::-webkit-scrollbar { display: none; }
-.app-frame { width: 100%; height: 220px; border: 0; display: block; background: transparent; color-scheme: normal; opacity: 0; transition: opacity var(--dur-fade) var(--ease-out); }
+.app-frame { width: 100%; height: 220px; border: 0; display: block; background: transparent; color-scheme: light dark; opacity: 0; transition: opacity var(--dur-fade) var(--ease-out); }
 .app-frame.in { opacity: 1; }
 body.fullscreen .s-bottom, body.fullscreen .s-top .heard { visibility: hidden; }
 .hydrated { background: var(--sc-surface); border-radius: calc(var(--u) * 16); padding: calc(var(--u) * 22) calc(var(--u) * 26) calc(var(--u) * 24); display: grid; gap: calc(var(--u) * 12); }
@@ -155,7 +155,7 @@ body[data-state="asking"] .ring { opacity: 1; border-color: var(--bar-cyan); ani
 .panel { position: sticky; top: 76px; display: grid; gap: 18px; padding: 18px; border-radius: var(--radius-lg); background: var(--bg-grouped-secondary); min-width: 0; max-height: calc(100dvh - 92px); overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 .conn { display: grid; gap: 6px; }
 .conn-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
-.conn-row .ui-input { height: 44px; font-size: 15px; font-family: var(--font-mono); letter-spacing: -0.01em; }
+.conn-row .ui-input { height: 44px; font-size: 16px; font-family: var(--font-mono); letter-spacing: -0.01em; }
 .conn-row .ui-button { height: 44px; }
 .conn-status { margin: 2px 0 0; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; font-size: var(--text-footnote); color: var(--label-secondary); min-width: 0; }
 .conn-status .ui-status { flex: none; color: var(--label); font-weight: var(--weight-semibold); }
@@ -181,6 +181,7 @@ body[data-state="listening"] .mic::after { opacity: calc(.3 + var(--lvl, 0) * .6
 .talk-voice[data-state="thinking"] .ui-voice__wave i { --l: 0 !important; }
 .talk-hint { font-size: var(--text-footnote); color: var(--label-secondary); }
 .talk-hint.err { color: var(--status-critical-text); }
+@media (pointer: coarse) { .talk-hint .kbd-only { display: none; } }
 
 .type { display: grid; gap: 6px; }
 .type-row { position: relative; display: flex; align-items: center; }
@@ -254,6 +255,7 @@ body[data-state="listening"] .mic::after { opacity: calc(.3 + var(--lvl, 0) * .6
 @media (max-width: 1100px) {
   .stage { grid-template-columns: minmax(0, 1fr); padding-inline: var(--margin-regular); }
   .panel { position: static; max-height: none; overflow: visible; }
+  .room { min-height: 0; }
 }
 @media (pointer: coarse), (max-width: 1100px) {
   .bar-devices label { height: 44px; }

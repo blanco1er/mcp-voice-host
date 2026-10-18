@@ -4,7 +4,7 @@
 import { McpHttpClient, UI_MIME } from './lib/mcp-client.js';
 import { AppsHost } from './lib/apps-host.js';
 import { DEVICES, DEVICE_IDS, hostContextFor } from './lib/devices.js';
-import { keywordBrain, modelVisible, valueForParam, askFor, parseYesNo, followUpCall, isConsequential } from './lib/intent.js';
+import { keywordBrain, httpBrain, modelVisible, valueForParam, askFor, parseYesNo, followUpCall, isConsequential } from './lib/intent.js';
 import { lintCall, lintTools, lintResource, speechOf, summarize, severityRank, finding } from './lib/lint.js';
 import { createBrowserTts, createHttpTts, createCaptionsOnly } from './lib/tts.js';
 import { buildForm } from './lib/schema-form.js';
@@ -23,7 +23,7 @@ const titleOf = (t) => t?.title || t?.annotations?.title || String(t?.name || ''
 // ---------- state ----------
 const S = {
   config: null,
-  device: DEVICE_IDS.includes(params.get('device')) ? params.get('device') : store.get('device', 'show15'),
+  device: DEVICE_IDS.includes(params.get('device')) ? params.get('device') : store.get('device', innerWidth < 700 ? 'phone' : 'show15'),
   mcp: null,
   tools: [],
   resources: [],
@@ -387,13 +387,20 @@ async function turn(text, { fromView = false } = {}) {
     }
     S.pending = null; setAsk(null);
   }
-  const route = await keywordBrain.route(text, S.tools);
+  const route = await brain().route(text, S.tools, { device: S.device, lastTool: S.last?.tool?.name || null });
+  if (route.brainError) logTraffic('orch', 'brain', { method: 'brain-error', error: { message: `${route.brainError}; used the keyword matcher instead` } });
   if (!route.tool) {
     await hostSays(route.say);
     return;
   }
-  logTraffic('orch', 'keyword matcher', { method: 'route', params: { tool: route.tool.name, arguments: route.arguments, missing: route.missing, score: route.score, alternatives: (route.alternatives || []).map((t) => t.name) } });
+  logTraffic('orch', route.by === 'brain' ? 'brain' : 'keyword matcher', { method: 'route', params: { tool: route.tool.name, arguments: route.arguments, missing: route.missing, score: route.score, alternatives: (route.alternatives || []).map((t) => t.name) } });
   return proceed(route.tool, route.arguments || {});
+}
+
+let brainCache = null;
+function brain() {
+  if (!S.config?.brain?.url) return keywordBrain;
+  return (brainCache ||= httpBrain({ url: S.config.brain.url, headers: S.config.proxy?.token ? { 'x-mvh-token': S.config.proxy.token } : {} }));
 }
 
 // Ask for missing arguments one by one, protect against blind purchases, then call.
@@ -421,6 +428,7 @@ async function run(tool, args) {
   setBusy(true);
   setAsk(null);
   setState('thinking');
+  if (DEVICES[S.device].hasScreen) document.body.dataset.screen = 'card';
   const interim = tool._meta?.ui?.invoking;
   setReply(interim || '');
   showTrail([`${titleOf(tool)}…`]);
@@ -521,6 +529,7 @@ function openElicitation({ message, requestedSchema }) {
     sheetForm = buildForm(requestedSchema || {}, {}, 'elicit');
     $('#toolSheetFields').replaceChildren(sheetForm.element);
     UI.openSheet($('#toolSheet'));
+    if (DEVICES[S.device].hasScreen) document.body.dataset.screen = 'card';
     setReply(message || 'The server needs more information.');
     speak(message || '');
   });
@@ -687,6 +696,7 @@ function renderTries() {
     const r = await fetch('config.json', { cache: 'no-store' });
     if (!r.ok) throw 0;
     S.config = await r.json();
+    S.config.sandbox.url = new URL(S.config.sandbox.url, location.href).href;
   } catch {
     S.config = { server: '', proxy: null, sandbox: { url: new URL('sandbox.html', location.href).href, isolation: 'opaque' }, tts: { provider: 'browser' } };
   }
@@ -695,6 +705,7 @@ function renderTries() {
   ttsRadio.checked = true; ttsRadio.dispatchEvent(new Event('change', { bubbles: true }));
   chooseTts(ttsMode === 'captions' ? 'captions' : 'voice');
   if (!SR) micHint('No speech recognition in this browser: type below (Chrome, Edge and Safari can listen).');
+  if (S.config.brain?.url) $('#toolsFoot').textContent = 'Speak or type a request: your brain endpoint picks the tool (the keyword matcher takes over if it fails), and the host asks for anything missing. Or open a tool to fill its form.';
   renderTries();
   setDevice(S.device);
   window.addEventListener('resize', fit);
