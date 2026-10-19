@@ -1,7 +1,7 @@
 /* ==========================================================================
-   Design system — components.css   (requiert tokens.css)
-   Toutes les classes sont préfixées « ui- » : aucune collision avec Tailwind.
-   États : .is-selected / [aria-selected] / [aria-current] / [aria-pressed] /
+   Design system — components.css   (requires tokens.css)
+   All classes are prefixed "ui-": no collisions with Tailwind.
+   States: .is-selected / [aria-selected] / [aria-current] / [aria-pressed] /
    [aria-invalid] / [disabled] / [data-state].
    ========================================================================== */
 
@@ -37,7 +37,7 @@
 .ui-visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden;
   clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* ---------- Typographie ------------------------------------------------ */
+/* ---------- Typography ------------------------------------------------- */
 .ui-large-title { font: var(--weight-bold) var(--text-large-title)/var(--leading-large-title) var(--font-display);
   letter-spacing: var(--tracking-large-title); }
 .ui-title1 { font: var(--weight-bold) var(--text-title1)/var(--leading-title1) var(--font-display);
@@ -69,7 +69,7 @@
 .ui-emph { font-weight: var(--weight-semibold); }
 .ui-tight > * { margin: 0; }
 
-/* ---------- Matériaux ---------------------------------------------------- */
+/* ---------- Materials ---------------------------------------------------- */
 :where(.ui-glass, .ui-glass-clear) { position: relative; isolation: isolate; }
 .ui-glass {
   background: var(--glass-fill);
@@ -77,7 +77,7 @@
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   box-shadow: inset 0 0 0 0.5px var(--glass-rim), var(--glass-shadow);
 }
-/* Liseré spéculaire : lumière en haut-gauche, rebond en bas-droite */
+/* Specular rim: light at top-left, bounce light at bottom-right */
 .ui-glass::before, .ui-glass-clear::before {
   content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
   pointer-events: none; z-index: 1;
@@ -95,7 +95,7 @@
   --glass-highlight: rgba(255, 255, 255, 0.7);
 }
 .ui-glass-clear.is-dimmed { background: color-mix(in srgb, var(--glass-dim) 100%, var(--glass-clear-fill)); }
-/* Matériaux standard pour la couche contenu */
+/* Standard materials for the content layer */
 .ui-material-ultrathin, .ui-material-thin, .ui-material-regular, .ui-material-thick {
   -webkit-backdrop-filter: blur(30px) saturate(1.6); backdrop-filter: blur(30px) saturate(1.6);
 }
@@ -111,7 +111,7 @@
   .ui-glass-clear { background: rgba(20, 20, 22, 0.72); }
 }
 
-/* Surface de contenu (couche contenu : pas de verre) */
+/* Content surface (content layer: no glass) */
 .ui-surface { background: var(--bg-grouped-secondary); border-radius: var(--radius-lg); }
 .ui-hairline { height: 0; border: 0; border-top: 0.5px solid var(--separator); margin: 0; }
 @media (max-resolution: 1dppx) { .ui-hairline { border-top-width: 1px; } }
@@ -123,7 +123,7 @@
   top: var(--sidebar-inset); bottom: var(--sidebar-inset); left: var(--sidebar-inset);
   width: var(--sidebar-w); border-radius: 22px;
   display: flex; flex-direction: column; overflow: hidden;
-  /* HIG : le verre est plus opaque sur les grands éléments (sidebar) */
+  /* HIG: glass is more opaque on large elements (sidebar) */
   --glass-alpha: calc(0.62 + var(--glass-tint) * 0.34);
 }
 .ui-sidebar__header { padding: 14px 14px 8px; display: flex; align-items: center; gap: 10px; }
@@ -152,13 +152,13 @@
 
 .ui-main { padding-left: calc(var(--sidebar-w) + var(--sidebar-inset) * 2); min-width: 0; }
 
-/* Toolbar : groupes de verre flottants + effet de bord de défilement */
+/* Toolbar: floating glass groups + scroll edge effect */
 .ui-toolbar {
   position: sticky; top: 0; z-index: var(--z-chrome);
   display: flex; align-items: center; gap: 12px;
   padding: 10px var(--margin-wide) 10px var(--margin-wide); min-height: 64px;
 }
-.ui-toolbar::before { /* scroll edge effect (style « soft ») */
+.ui-toolbar::before { /* scroll edge effect ("soft" style) */
   content: ""; position: absolute; inset: 0 0 -28px 0; z-index: -1; pointer-events: none;
   background: linear-gradient(to bottom, var(--bg-grouped) 0%,
     color-mix(in srgb, var(--bg-grouped) 92%, transparent) 62%, transparent 100%);
@@ -174,7 +174,7 @@
 .ui-toolbar__group .ui-icon-button { background: transparent; box-shadow: none; }
 .ui-toolbar__group .ui-icon-button::before { display: none; }
 
-/* ---------- Boutons ------------------------------------------------------ */
+/* ---------- Buttons ------------------------------------------------------ */
 .ui-button {
   --_h: var(--control-md);
   position: relative; isolation: isolate;
@@ -195,7 +195,7 @@
 .ui-button--sm { --_h: var(--control-sm); padding: 0 12px; font-size: var(--text-subhead); }
 .ui-button--lg { --_h: var(--control-lg); padding: 0 22px; font-size: var(--text-body); }
 .ui-button--xl { --_h: var(--control-xl); padding: 0 28px; font-size: var(--text-body); font-weight: var(--weight-semibold); }
-/* Un seul bouton proéminent par vue (HIG Buttons / Toolbars) */
+/* Only one prominent button per view (HIG Buttons / Toolbars) */
 .ui-button--prominent {
   background: var(--accent); color: var(--accent-on); font-weight: var(--weight-semibold);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 1px 2px rgba(0, 0, 0, 0.12),
@@ -213,7 +213,7 @@
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   box-shadow: inset 0 0 0 0.5px var(--glass-rim), var(--shadow-2); }
 .ui-button--glass:hover { background: color-mix(in srgb, var(--glass-surface) 92%, transparent); }
-/* Halo spéculaire qui suit le pointeur (motion.js renseigne --px / --py) */
+/* Specular halo that follows the pointer (motion.js sets --px / --py) */
 .ui-button--glass::after, .ui-icon-button.ui-glass::after {
   content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 2;
   background: radial-gradient(80px circle at var(--px, 50%) var(--py, 0%), rgba(255, 255, 255, 0.35), transparent 70%);
@@ -233,12 +233,12 @@
 .ui-icon-button--sm { --_s: var(--control-sm); font-size: 14px; }
 .ui-icon-button--lg { --_s: var(--control-lg); font-size: 19px; }
 .ui-icon-button[aria-pressed="true"] { color: var(--accent-text); background: var(--accent-tint); }
-@media (pointer: coarse) { /* cible tactile ≥ 44 pt */
+@media (pointer: coarse) { /* touch target ≥ 44 pt */
   .ui-icon-button, .ui-button { min-height: var(--hit-min); }
   .ui-icon-button { --_s: var(--hit-min); }
 }
 
-/* ---------- Contrôle segmenté ------------------------------------------- */
+/* ---------- Segmented control ------------------------------------------ */
 .ui-segmented {
   position: relative; display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr;
   padding: 2px; border-radius: var(--radius-full); background: var(--fill-tertiary);
@@ -257,13 +257,13 @@
   border-radius: var(--radius-full); background: light-dark(#fff, #636366);
   box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.04), 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04);
 }
-/* Repli sans JS */
+/* No-JS fallback */
 .ui-segmented:not(.is-enhanced) label:has(input:checked) { background: light-dark(#fff, #636366);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12); }
 .ui-segmented label:has(input:checked) { font-weight: var(--weight-semibold); }
 .ui-segmented--lg label { height: 34px; font-size: var(--text-callout); }
 
-/* ---------- Interrupteur (toggle) -------------------------------------- */
+/* ---------- Switch (toggle) -------------------------------------------- */
 .ui-switch {
   appearance: none; -webkit-appearance: none; position: relative; flex: none;
   width: 52px; height: 32px; margin: 0; border-radius: var(--radius-full); cursor: pointer;
@@ -276,13 +276,13 @@
 }
 .ui-switch:checked { background: var(--system-green); }
 .ui-switch:checked::after { transform: translateX(20px); }
-/* Liquid Glass : le bouton s'étire et devient verre pendant l'interaction */
+/* Liquid Glass: the knob stretches and turns to glass during interaction */
 .ui-switch:active::after { width: 36px; background: rgba(255, 255, 255, 0.82);
   box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.08), 0 4px 14px rgba(0, 0, 0, 0.2); }
 .ui-switch:checked:active::after { transform: translateX(12px); }
 .ui-switch:disabled { opacity: 0.4; }
 
-/* ---------- Curseur ----------------------------------------------------- */
+/* ---------- Slider ------------------------------------------------------ */
 .ui-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; margin: 0;
   background: transparent; cursor: pointer; --_v: 50%; }
 .ui-slider::-webkit-slider-runnable-track { height: 6px; border-radius: 3px;
@@ -296,7 +296,7 @@
 .ui-slider::-moz-range-thumb { width: 28px; height: 22px; border: 0; border-radius: 999px; background: #fff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18); }
 
-/* ---------- Champs ------------------------------------------------------ */
+/* ---------- Fields ------------------------------------------------------ */
 .ui-field { display: grid; gap: 6px; }
 .ui-field__label { font-size: var(--text-footnote); font-weight: var(--weight-medium); color: var(--label-secondary); }
 .ui-field__hint { font-size: var(--text-footnote); color: var(--label-secondary); }
@@ -323,7 +323,7 @@
 .ui-search kbd { position: absolute; right: 8px; font: var(--weight-medium) 11px/1 var(--font-sans);
   color: var(--label-secondary); padding: 3px 6px; border-radius: 5px; background: var(--fill-tertiary); }
 
-/* ---------- Listes groupées (inset grouped) ---------------------------- */
+/* ---------- Grouped lists (inset grouped) ------------------------------ */
 .ui-list-section { margin: 0 0 28px; }
 .ui-list__header { margin: 0 16px 7px; font-size: var(--text-footnote); color: var(--label-secondary);
   font-weight: var(--weight-regular); display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
@@ -351,7 +351,7 @@ button.ui-row { width: 100%; border: 0; font: inherit; text-align: left; cursor:
 .ui-row__chevron { color: var(--label-tertiary); width: 14px; height: 14px; flex: none; }
 .ui-row.is-selected { background: var(--accent-tint); }
 
-/* ---------- Tableau de données ---------------------------------------- */
+/* ---------- Data table ------------------------------------------------ */
 .ui-table-wrap { overflow: auto; border-radius: var(--radius-lg); background: var(--bg-grouped-secondary);
   -webkit-overflow-scrolling: touch; }
 .ui-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: var(--text-callout); }
@@ -379,7 +379,7 @@ button.ui-row { width: 100%; border: 0; font: inherit; text-align: left; cursor:
 .ui-table input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); margin: 0; vertical-align: middle; }
 .ui-table__footer { display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 10px 18px; border-top: 0.5px solid var(--separator); font-size: var(--text-footnote); color: var(--label-secondary); }
-/* Sur iPhone : chaque ligne devient une cellule de liste */
+/* On iPhone: each row becomes a list cell */
 @media (max-width: 699px) {
   .ui-table--stack thead { display: none; }
   .ui-table--stack, .ui-table--stack tbody, .ui-table--stack tr, .ui-table--stack td { display: block; width: 100%; }
@@ -393,14 +393,14 @@ button.ui-row { width: 100%; border: 0; font: inherit; text-align: left; cursor:
   .ui-table--stack td[data-slot="meta"] { grid-column: 1; color: var(--label-secondary); font-size: var(--text-subhead); }
 }
 
-/* ---------- Statut, badge, avatar, progression ----------------------- */
+/* ---------- Status, badge, avatar, progress ---------------------------- */
 .ui-status { display: inline-flex; align-items: center; gap: 6px; color: var(--label); font-size: inherit; }
 .ui-status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--_c, var(--system-gray)); flex: none; }
 .ui-status--ok { --_c: var(--status-ok); }
 .ui-status--warn { --_c: var(--status-warn); }
 .ui-status--critical { --_c: var(--status-critical); color: var(--status-critical-text); font-weight: var(--weight-medium); }
 .ui-status--info { --_c: var(--status-info); }
-/* Badge = compteur critique uniquement (HIG Tab bars). Pas de pastilles décoratives. */
+/* Badge = critical counter only (HIG Tab bars). No decorative dots. */
 .ui-badge { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px;
   border-radius: 9px; background: var(--system-red); color: #fff; font: var(--weight-semibold) 11px/1 var(--font-sans);
   font-variant-numeric: tabular-nums; }
@@ -412,7 +412,7 @@ button.ui-row { width: 100%; border: 0; font: inherit; text-align: left; cursor:
 .ui-progress.is-indeterminate > span { width: 30%; animation: ui-indeterminate 1.4s var(--ease-out) infinite; }
 @keyframes ui-indeterminate { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
 
-/* ---------- Statistiques (bande, pas de cartes) ----------------------- */
+/* ---------- Stats (strip, not cards) ----------------------------------- */
 .ui-stats { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); }
 .ui-stat { padding: 2px 24px; min-width: 0; }
 .ui-stat:first-child { padding-left: 0; }
@@ -441,7 +441,7 @@ button.ui-row { width: 100%; border: 0; font: inherit; text-align: left; cursor:
 [popover].ui-menu:popover-open { animation: ui-pop-in var(--dur-snappy) var(--ease-snappy) both; }
 @keyframes ui-pop-in { from { opacity: 0; transform: scale(0.92) translateY(-4px); } }
 
-/* ---------- Sheets (dialog natif) ------------------------------------- */
+/* ---------- Sheets (native dialog) ------------------------------------ */
 .ui-sheet {
   border: 0; padding: 0; color: var(--label); background: var(--bg-elevated);
   width: min(560px, calc(100vw - 32px)); max-height: min(720px, calc(100dvh - 48px));
@@ -473,7 +473,7 @@ button.ui-row { width: 100%; border: 0; font: inherit; text-align: left; cursor:
   @keyframes ui-sheet-down { to { transform: translateY(100%); } }
 }
 
-/* Alerte : petite, centrée, deux actions maximum */
+/* Alert: small, centered, two actions maximum */
 .ui-alert { width: min(300px, calc(100vw - 48px)); border-radius: 28px; text-align: center; }
 .ui-alert .ui-sheet__body { padding: 22px 20px 16px; }
 .ui-alert h2 { margin: 0 0 6px; font-size: var(--text-headline); font-weight: var(--weight-semibold); }
@@ -496,7 +496,7 @@ button.ui-row { width: 100%; border: 0; font: inherit; text-align: left; cursor:
 .ui-toast--critical { --_c: var(--status-critical); }
 @media (max-width: 699px) { .ui-toast-region { bottom: auto; top: calc(10px + env(safe-area-inset-top)); } }
 
-/* ---------- États : vide, chargement, erreur ------------------------ */
+/* ---------- States: empty, loading, error --------------------------- */
 .ui-empty { display: grid; justify-items: center; text-align: center; gap: 6px; padding: 40px 24px; }
 .ui-empty__icon { font-size: 34px; color: var(--label-tertiary); margin-bottom: 6px; display: grid; }
 .ui-empty__icon svg.ui-icon { width: 40px; height: 40px; stroke-width: 1.4; }
@@ -507,7 +507,7 @@ button.ui-row { width: 100%; border: 0; font: inherit; text-align: left; cursor:
   background: linear-gradient(90deg, transparent, light-dark(rgba(255,255,255,.7), rgba(255,255,255,.07)), transparent);
   animation: ui-shimmer 1.6s ease-in-out infinite; }
 @keyframes ui-shimmer { to { transform: translateX(100%); } }
-/* Indicateur d'activité Apple : 8 rayons */
+/* Apple activity indicator: 8 spokes */
 .ui-spinner { --_s: 20px; position: relative; display: inline-block; width: var(--_s); height: var(--_s); color: var(--label-secondary); }
 .ui-spinner i { position: absolute; left: 46%; top: 0; width: 8%; height: 28%; border-radius: 99px; background: currentColor;
   transform-origin: 50% 178%; animation: ui-spoke 0.8s steps(8) infinite; opacity: 0.25; }
@@ -527,8 +527,8 @@ button.ui-row { width: 100%; border: 0; font: inherit; text-align: left; cursor:
 .ui-banner--warn { --_c: var(--status-warn); }
 .ui-banner p { margin: 2px 0 0; color: var(--label-secondary); font-size: var(--text-footnote); }
 
-/* ---------- Barre d'onglets ------------------------------------------ */
-/* iPhone : capsule de verre flottante en bas + bouton Recherche séparé */
+/* ---------- Tab bar -------------------------------------------------- */
+/* iPhone: floating glass capsule at the bottom + separate Search button */
 .ui-tabbar { position: fixed; z-index: var(--z-chrome); left: 16px; right: 16px;
   bottom: max(14px, env(safe-area-inset-bottom)); display: none; gap: 10px; align-items: flex-end;
   transition: transform var(--dur-smooth) var(--ease-smooth); }
@@ -544,16 +544,16 @@ button.ui-row { width: 100%; border: 0; font: inherit; text-align: left; cursor:
 .ui-tabbar__search { width: 62px; height: 62px; border-radius: 50%; display: grid; place-items: center; color: var(--label); border: 0; cursor: pointer; }
 .ui-tabbar__search svg.ui-icon { width: 24px; height: 24px; }
 .ui-tabbar.is-minimized { transform: translateY(8px) scale(0.92); }
-/* iPad : barre d'onglets en haut, centrée dans la toolbar */
+/* iPad: tab bar at the top, centered in the toolbar */
 .ui-tabs-top { display: none; padding: 4px; border-radius: var(--radius-full); position: relative; }
 .ui-tabs-top a { position: relative; z-index: 1; padding: 7px 16px; border-radius: var(--radius-full); color: var(--label);
   font-size: var(--text-subhead); font-weight: var(--weight-medium); text-decoration: none !important; }
 .ui-tabs-top a[aria-current="page"] { background: var(--fill-tertiary); color: var(--accent-text); font-weight: var(--weight-semibold); }
 
-/* ---------- Barre de navigation iPhone (grand titre) ---------------- */
+/* ---------- iPhone navigation bar (large title) ---------------------- */
 .ui-navbar { display: none; }
 
-/* ---------- Voix : présence, pas un appel -------------------------- */
+/* ---------- Voice: a presence, not a call --------------------------- */
 .ui-voice { display: grid; gap: 14px; }
 .ui-voice__capsule { display: inline-flex; align-items: center; gap: 14px; padding: 10px 12px 10px 18px;
   border-radius: var(--radius-full); min-height: 56px; }
@@ -571,7 +571,7 @@ button.ui-row { width: 100%; border: 0; font: inherit; text-align: left; cursor:
 .ui-transcript .w { display: inline; animation: ui-word var(--dur-smooth) var(--ease-smooth) both; }
 @keyframes ui-word { from { opacity: 0; filter: blur(4px); } }
 
-/* ---------- Graphiques : points d'accroche --------------------------- */
+/* ---------- Charts: styling hooks ------------------------------------ */
 .ui-chart { position: relative; color: var(--chart-label); font-size: var(--text-caption1); }
 .ui-chart svg { display: block; width: 100%; height: auto; overflow: visible; }
 .ui-chart__grid { stroke: var(--chart-grid); stroke-width: 1; shape-rendering: crispEdges; }
@@ -592,8 +592,8 @@ button.ui-row { width: 100%; border: 0; font: inherit; text-align: left; cursor:
 .ui-chart__legend li::before { content: ""; width: 12px; height: 2px; border-radius: 1px; background: var(--_c, var(--chart-1)); }
 .ui-chart__legend li.is-dashed::before { background: repeating-linear-gradient(90deg, var(--_c) 0 3px, transparent 3px 6px); }
 
-/* ---------- Réactivité du shell ------------------------------------ */
-/* iPad (700–999) : sidebar masquée, onglets en haut */
+/* ---------- Shell responsiveness ------------------------------------ */
+/* iPad (700–999): sidebar hidden, tabs at the top */
 @media (max-width: 999px) {
   .ui-app { --sidebar-w: 0px; }
   .ui-sidebar { transform: translateX(calc(-100% - 20px)); width: 300px;
@@ -603,7 +603,7 @@ button.ui-row { width: 100%; border: 0; font: inherit; text-align: left; cursor:
   .ui-toolbar { padding-inline: var(--margin-regular); }
   .ui-tabs-top { display: inline-flex; }
 }
-/* iPhone (< 700) : barre de navigation + barre d'onglets en bas */
+/* iPhone (< 700): navigation bar + tab bar at the bottom */
 @media (max-width: 699px) {
   .ui-tabs-top { display: none; }
   .ui-tabbar { display: flex; }
@@ -615,11 +615,11 @@ button.ui-row { width: 100%; border: 0; font: inherit; text-align: left; cursor:
   .ui-transcript .w { animation: none; }
 }
 
-/* Verre appliqué aux boutons : le matériau l'emporte sur le remplissage neutre */
+/* Glass applied to buttons: the material wins over the neutral fill */
 .ui-glass.ui-icon-button, .ui-glass.ui-button { background: var(--glass-fill); }
 .ui-glass.ui-icon-button:hover, .ui-glass.ui-button:hover { background: color-mix(in srgb, var(--glass-surface) 94%, transparent); }
 
-/* Sidebar repliable sur desktop (HIG Sidebars : la laisser masquer, visible par défaut) */
+/* Collapsible sidebar on desktop (HIG Sidebars: let users hide it, visible by default) */
 @media (min-width: 1000px) {
   .ui-sidebar { transition: transform var(--dur-smooth) var(--ease-smooth); }
   .ui-main { transition: padding-left var(--dur-smooth) var(--ease-smooth); }

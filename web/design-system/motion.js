@@ -1,32 +1,32 @@
 /* ==========================================================================
-   Design system — motion.js  (module ES, vanilla, sans dépendance, sans réseau)
+   Design system — motion.js  (ES module, vanilla, no dependencies, no network)
 
    HTML    : <script type="module" src="/design-system/motion.js"></script>
-             → s'initialise seul (désactiver : <html data-ui-auto="off">).
+             → initializes itself (to disable: <html data-ui-auto="off">).
    Next.js : import { init } from "@/design-system/motion.js";
-             useEffect(() => init(), []);   // côté client uniquement
-   Global  : window.UI (mêmes fonctions).
+             useEffect(() => init(), []);   // client side only
+   Global  : window.UI (same functions).
 
-   Modèle de ressort Apple (WWDC23 « Animate with springs ») :
-     duration = rythme perçu, bounce ∈ [0, 1)  →  ζ = 1 − bounce, ω₀ = 2π / duration
+   Apple spring model (WWDC23 "Animate with springs"):
+     duration = perceived pace, bounce ∈ [0, 1)  →  ζ = 1 − bounce, ω₀ = 2π / duration
    ========================================================================== */
 
 const hasDOM = typeof window !== "undefined" && typeof document !== "undefined";
 const done = new WeakSet();
 
-/* ---------- Préférences ---------------------------------------------- */
+/* ---------- Preferences ---------------------------------------------- */
 export const prefersReducedMotion = () =>
   hasDOM && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const supportsLinear = hasDOM && window.CSS && CSS.supports("animation-timing-function", "linear(0, 1)");
 
-/* ---------- Ressorts : courbe analytique ----------------------------- */
+/* ---------- Springs: analytic curve ---------------------------------- */
 function springValue(t, duration, bounce, v0 = 0) {
-  // Position normalisée de 0 → 1 ; v0 = vitesse initiale (unités / s, normalisée)
+  // Normalized position from 0 → 1; v0 = initial velocity (units / s, normalized)
   const w = (2 * Math.PI) / duration;
   const z = Math.min(Math.max(1 - bounce, 0.0001), 1);
   if (z >= 0.9999) {
-    // critique : x(t) = 1 − (1 + (w − v0) t) e^(−wt)
+    // critical: x(t) = 1 − (1 + (w − v0) t) e^(−wt)
     return 1 - (1 + (w - v0) * t) * Math.exp(-w * t);
   }
   const wd = w * Math.sqrt(1 - z * z);
@@ -56,7 +56,7 @@ function simplify(points, eps) {
 }
 
 const cache = new Map();
-/** Renvoie { easing: "linear(...)", duration: ms } pour un ressort Apple. */
+/** Returns { easing: "linear(...)", duration: ms } for an Apple spring. */
 export function springEasing(duration = 0.5, bounce = 0, velocity = 0) {
   const key = `${duration}|${bounce}|${velocity.toFixed(2)}`;
   if (cache.has(key)) return cache.get(key);
@@ -72,13 +72,13 @@ export function springEasing(duration = 0.5, bounce = 0, velocity = 0) {
   return out;
 }
 
-/** Échantillonne la courbe (pour tracer / documenter). Renvoie [[t (s), x], …]. */
+/** Samples the curve (for plotting / documentation). Returns [[t (s), x], …]. */
 export function springCurve(duration = 0.5, bounce = 0, samples = 120) {
   const T = settleTime(duration, bounce);
   return Array.from({ length: samples + 1 }, (_, i) => [(T * i) / samples, springValue((T * i) / samples, duration, bounce)]);
 }
 
-/** Presets alignés sur SwiftUI (.smooth / .snappy / .bouncy, durée 0,5 s par défaut). */
+/** Presets matching SwiftUI (.smooth / .snappy / .bouncy, 0.5 s default duration). */
 export const springs = {
   smooth: { duration: 0.5, bounce: 0 },
   snappy: { duration: 0.4, bounce: 0.15 },
@@ -86,7 +86,7 @@ export const springs = {
   quick: { duration: 0.25, bounce: 0 },
 };
 
-/** Anime avec WAAPI + ressort. Respecte « Réduire les animations » (fondu court). */
+/** Animates with WAAPI + spring. Respects "Reduce Motion" (short fade). */
 export function spring(el, keyframes, opts = {}) {
   if (!el || !el.animate) return null;
   const p = typeof opts === "string" ? springs[opts] : { ...springs.smooth, ...(springs[opts.preset] || {}), ...opts };
@@ -98,8 +98,8 @@ export function spring(el, keyframes, opts = {}) {
   return el.animate(keyframes, { duration, easing, fill: opts.fill || "both", delay: opts.delay || 0, composite: opts.composite });
 }
 
-/* ---------- Ressort physique interruptible (gestes) ------------------ */
-/** Anime une valeur numérique avec conservation de la vitesse (glisser-relâcher). */
+/* ---------- Interruptible physical spring (gestures) ----------------- */
+/** Animates a numeric value while preserving velocity (drag-and-release). */
 export function springValueTo({ from, to, velocity = 0, duration = 0.5, bounce = 0, onUpdate, onDone }) {
   const k = Math.pow((2 * Math.PI) / duration, 2);
   const c = (4 * Math.PI * (1 - bounce)) / duration;
@@ -118,7 +118,7 @@ export function springValueTo({ from, to, velocity = 0, duration = 0.5, bounce =
   return { stop() { stopped = true; cancelAnimationFrame(raf); }, get value() { return x; }, get velocity() { return v; } };
 }
 
-/* ---------- Indicateur glissant (segmenté, onglets) ------------------ */
+/* ---------- Sliding indicator (segmented control, tabs) ------------- */
 function moveIndicator(indicator, target, container, animate = true) {
   if (!indicator || !target) return;
   const c = container.getBoundingClientRect(), r = target.getBoundingClientRect();
@@ -128,7 +128,7 @@ function moveIndicator(indicator, target, container, animate = true) {
   indicator.style.transform = `translateX(${x}px)`;
   indicator._pos = { x, w };
   if (animate && prev && (prev.x !== x || prev.w !== w)) {
-    // L'indicateur « s'étire » comme une goutte puis se pose (Liquid Glass)
+    // The indicator "stretches" like a droplet then settles (Liquid Glass)
     spring(indicator, [
       { transform: `translateX(${prev.x}px) scaleX(1)`, width: `${prev.w}px` },
       { transform: `translateX(${x}px) scaleX(1)`, width: `${w}px` },
@@ -163,14 +163,14 @@ export function enhanceTabbar(root) {
     if (bounce) spring(item.querySelector("svg"), [{ transform: "scale(0.82)" }, { transform: "scale(1)" }], { preset: "bouncy", fill: "none" });
   };
   tabs.addEventListener("click", (e) => select(e.target.closest(".ui-tabbar__item"), true));
-  // Sélection programmatique (ex. suivi du défilement) : root.dispatchEvent(new CustomEvent("ui:select", { detail: index | element }))
+  // Programmatic selection (e.g. scroll tracking): root.dispatchEvent(new CustomEvent("ui:select", { detail: index | element }))
   root.addEventListener("ui:select", (e) => {
     const items = [...tabs.querySelectorAll(".ui-tabbar__item")];
     select(typeof e.detail === "number" ? items[e.detail] : e.detail, false);
   });
   new ResizeObserver(() => sync(false)).observe(tabs);
   sync(false);
-  // Minimisation au défilement vers le bas (HIG Tab bars, iOS)
+  // Minimize on scroll down (HIG Tab bars, iOS)
   if (root.hasAttribute("data-minimize")) {
     let lastY = scrollY;
     addEventListener("scroll", () => {
@@ -179,7 +179,7 @@ export function enhanceTabbar(root) {
   }
 }
 
-/* ---------- Toolbar : effet de bord de défilement -------------------- */
+/* ---------- Toolbar: scroll edge effect ------------------------------ */
 export function enhanceToolbar(bar) {
   if (done.has(bar)) return; done.add(bar);
   const sentinel = document.createElement("div");
@@ -188,7 +188,7 @@ export function enhanceToolbar(bar) {
   new IntersectionObserver(([e]) => bar.classList.toggle("is-scrolled", !e.isIntersecting)).observe(sentinel);
 }
 
-/* ---------- Halo spéculaire sur le verre ----------------------------- */
+/* ---------- Specular halo on glass ----------------------------------- */
 function trackPointer(e) {
   const el = e.target.closest?.(".ui-button--glass, .ui-glass.ui-icon-button, .ui-glass.ui-button");
   if (!el) return;
@@ -204,7 +204,7 @@ export function openSheet(dialog) {
   dialog.classList.remove("is-closing");
   dialog.showModal();
   dialog.style.transform = "";
-  // Focus sur la boîte elle-même (annoncée via aria-labelledby), sauf [autofocus] explicite
+  // Focus the dialog itself (announced via aria-labelledby), unless an explicit [autofocus] exists
   if (!dialog.querySelector("[autofocus]")) { dialog.tabIndex = -1; dialog.focus(); }
 }
 
@@ -220,12 +220,12 @@ export function closeSheet(dialog, returnValue) {
 
 function enhanceSheet(dialog) {
   if (done.has(dialog)) return; done.add(dialog);
-  // Clic sur le voile = Annuler (pas pour les alertes)
+  // Click on the backdrop = Cancel (not for alerts)
   dialog.addEventListener("click", (e) => {
     if (e.target === dialog && !dialog.classList.contains("ui-alert")) closeSheet(dialog, "cancel");
   });
   dialog.addEventListener("cancel", (e) => { e.preventDefault(); closeSheet(dialog, "cancel"); });
-  // Glisser pour fermer (iPhone) : suit le doigt, relâche avec la vitesse du geste
+  // Swipe to dismiss (iPhone): follows the finger, releases with the gesture's velocity
   const handle = dialog.querySelector(".ui-sheet__grabber, .ui-sheet__bar");
   if (!handle) return;
   let startY = 0, y = 0, lastT = 0, lastY = 0, vel = 0, dragging = false;
@@ -238,7 +238,7 @@ function enhanceSheet(dialog) {
     if (!dragging) return;
     const now = performance.now();
     y = Math.max(0, e.clientY - startY);
-    const raw = e.clientY - startY; if (raw < 0) y = -Math.sqrt(-raw) * 2; // résistance vers le haut
+    const raw = e.clientY - startY; if (raw < 0) y = -Math.sqrt(-raw) * 2; // upward resistance
     vel = ((e.clientY - lastY) / Math.max(now - lastT, 1)) * 1000; lastY = e.clientY; lastT = now;
     dialog.style.transform = `translateY(${y}px)`;
   });
@@ -294,25 +294,25 @@ export function toast({ title, detail = "", tone = "info", action, duration = 42
   return { dismiss };
 }
 
-/* ---------- Thème et verre ----------------------------------------- */
+/* ---------- Theme and glass ----------------------------------------- */
 export function setTheme(mode /* "light" | "dark" | "system" */) {
   const r = document.documentElement;
   if (mode === "system") r.removeAttribute("data-theme"); else r.setAttribute("data-theme", mode);
   try { localStorage.setItem("ui-theme", mode); } catch {}
 }
-/** 0 = ultra-clair … 1 = teinté (comme le réglage Liquid Glass d'iOS 27). */
+/** 0 = ultra-clear … 1 = tinted (like the iOS 27 Liquid Glass setting). */
 export function setGlassTint(v) {
   document.documentElement.style.setProperty("--glass-tint", String(Math.min(1, Math.max(0, v))));
   try { localStorage.setItem("ui-glass", String(v)); } catch {}
 }
 
-/* ---------- Curseurs : remplissage de piste ------------------------ */
+/* ---------- Sliders: track fill ------------------------------------ */
 function syncSlider(input) {
   const min = +input.min || 0, max = +input.max || 100;
   input.style.setProperty("--_v", `${((input.value - min) / (max - min)) * 100}%`);
 }
 
-/* ---------- Initialisation ----------------------------------------- */
+/* ---------- Initialization ----------------------------------------- */
 export function init(scope = hasDOM ? document : null) {
   if (!scope) return;
   try {

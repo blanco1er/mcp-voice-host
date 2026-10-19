@@ -1,17 +1,17 @@
 /* ==========================================================================
    Design system — tokens.css
-   Base : Apple Human Interface Guidelines (Liquid Glass, iOS/macOS 26 → 27).
-   Aucune police téléchargée, aucun appel réseau. Clair + sombre automatiques.
-   Utilisation : <link rel="stylesheet" href="tokens.css"> puis components.css.
-   Forcer un thème : <html data-theme="light|dark">. Défaut : système.
+   Based on: Apple Human Interface Guidelines (Liquid Glass, iOS/macOS 26 → 27).
+   No downloaded fonts, no network calls. Automatic light + dark.
+   Usage: <link rel="stylesheet" href="tokens.css"> then components.css.
+   Force a theme: <html data-theme="light|dark">. Default: system.
    ========================================================================== */
 
 :root {
   color-scheme: light dark;
 
-  /* ---------- Typographie ------------------------------------------------ */
-  /* -apple-system / system-ui donnent SF Pro sur Apple (optique dynamique),
-     Segoe UI Variable sur Windows, Roboto sur Android. Jamais de webfont. */
+  /* ---------- Typography ------------------------------------------------- */
+  /* -apple-system / system-ui give SF Pro on Apple (dynamic optical sizing),
+     Segoe UI Variable on Windows, Roboto on Android. Never a webfont. */
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", system-ui,
     "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", system-ui,
@@ -20,8 +20,8 @@
   --font-serif: ui-serif, "New York", Charter, Georgia, serif;
   --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 
-  /* Échelle Dynamic Type iOS, taille « Large » (défaut) — HIG Typography.
-     En rem : suit le réglage de taille de texte du navigateur (≈ Dynamic Type). */
+  /* iOS Dynamic Type scale, "Large" size (default) — HIG Typography.
+     In rem: follows the browser's text size setting (≈ Dynamic Type). */
   --text-large-title: 2.125rem;  /* 34 / 41 */
   --text-title1: 1.75rem;        /* 28 / 34 */
   --text-title2: 1.375rem;       /* 22 / 28 */
@@ -32,7 +32,7 @@
   --text-subhead: 0.9375rem;     /* 15 / 20 */
   --text-footnote: 0.8125rem;    /* 13 / 18 */
   --text-caption1: 0.75rem;      /* 12 / 16 */
-  --text-caption2: 0.6875rem;    /* 11 / 13 — minimum absolu iOS */
+  --text-caption2: 0.6875rem;    /* 11 / 13 — absolute iOS minimum */
 
   --leading-large-title: 1.206; /* 41/34 */
   --leading-title1: 1.214;
@@ -45,9 +45,9 @@
   --leading-footnote: 1.385;
   --leading-caption1: 1.333;
   --leading-caption2: 1.182;
-  --leading-prose: 1.5;          /* paragraphes longs : interlignage « loose » */
+  --leading-prose: 1.5;          /* long paragraphs: "loose" leading */
 
-  /* Approche des tables HIG « SF Pro tracking » (1/1000 em). */
+  /* Approximates the HIG "SF Pro tracking" tables (1/1000 em). */
   --tracking-large-title: 0.012em;
   --tracking-title1: 0.0135em;
   --tracking-title2: -0.012em;
@@ -59,12 +59,12 @@
   --tracking-caption: 0em;
 
   --weight-regular: 400;
-  --weight-medium: 510;   /* SF variable : 510 = Medium système */
-  --weight-semibold: 590; /* 590 = Semibold système */
+  --weight-medium: 510;   /* SF variable: 510 = system Medium */
+  --weight-semibold: 590; /* 590 = system Semibold */
   --weight-bold: 700;
-  /* HIG : éviter Ultralight / Thin / Light dans l'interface. */
+  /* HIG: avoid Ultralight / Thin / Light in the UI. */
 
-  /* ---------- Espacement (grille 4 pt) ---------------------------------- */
+  /* ---------- Spacing (4 pt grid) --------------------------------------- */
   --space-0: 0;
   --space-1: 2px;
   --space-2: 4px;
@@ -79,32 +79,32 @@
   --space-11: 64px;
   --space-12: 96px;
 
-  /* Marges de mise en page (équivalent layoutMargins) */
+  /* Layout margins (layoutMargins equivalent) */
   --margin-compact: 16px;   /* iPhone */
   --margin-regular: 20px;   /* iPad */
   --margin-wide: 32px;      /* Mac / desktop */
   --readable-width: 42rem;  /* readableContentGuide ≈ 672 px */
   --content-max: 1240px;
 
-  /* ---------- Formes concentriques -------------------------------------- */
-  /* Règle : rayon intérieur = rayon extérieur − marge intérieure. */
+  /* ---------- Concentric shapes ----------------------------------------- */
+  /* Rule: inner radius = outer radius − inner padding. */
   --radius-xs: 6px;
   --radius-sm: 10px;
-  --radius-md: 14px;   /* contrôles rectangulaires, cellules desktop */
-  --radius-lg: 20px;   /* panneaux, listes groupées desktop */
-  --radius-xl: 26px;   /* listes groupées iPhone, popovers */
-  --radius-2xl: 34px;  /* feuilles (sheets), barre d'onglets */
+  --radius-md: 14px;   /* rectangular controls, desktop cells */
+  --radius-lg: 20px;   /* panels, desktop grouped lists */
+  --radius-xl: 26px;   /* iPhone grouped lists, popovers */
+  --radius-2xl: 34px;  /* sheets, tab bar */
   --radius-full: 999px;
 
-  /* ---------- Cibles et tailles de contrôles (HIG Accessibility) ------- */
-  --hit-min: 44px;           /* iOS : 44×44 pt par défaut */
-  --hit-min-pointer: 28px;   /* macOS : 28×28 pt défaut, 20 minimum */
+  /* ---------- Hit targets and control sizes (HIG Accessibility) ------- */
+  --hit-min: 44px;           /* iOS: 44×44 pt default */
+  --hit-min-pointer: 28px;   /* macOS: 28×28 pt default, 20 minimum */
   --control-sm: 28px;
   --control-md: 36px;
   --control-lg: 44px;
-  --control-xl: 52px;        /* taille « extra-large » Liquid Glass */
+  --control-xl: 52px;        /* Liquid Glass "extra-large" size */
 
-  /* ---------- Couleurs système iOS 26 (HIG Color, juin 2025) ----------- */
+  /* ---------- iOS 26 system colors (HIG Color, June 2025) ------------- */
   --system-red: light-dark(#FF383C, #FF4245);
   --system-orange: light-dark(#FF8D28, #FF9230);
   --system-yellow: light-dark(#FFCC00, #FFD600);
@@ -125,24 +125,24 @@
   --system-gray5: light-dark(#E5E5EA, #2C2C2E);
   --system-gray6: light-dark(#F2F2F7, #1C1C1E);
 
-  /* ---------- Couleurs sémantiques -------------------------------------- */
-  /* Libellés. Écart volontaire : secondaryLabel Apple clair (60 %) = 3,44:1,
-     sous WCAG AA. On utilise #6E6E73 (5,07:1 sur blanc, 4,54:1 sur gris). */
+  /* ---------- Semantic colors ------------------------------------------- */
+  /* Labels. Deliberate deviation: Apple's light secondaryLabel (60 %) = 3.44:1,
+     below WCAG AA. We use #6E6E73 (5.07:1 on white, 4.54:1 on gray). */
   --label: light-dark(#000000, #FFFFFF);
   --label-secondary: light-dark(#6E6E73, rgba(235, 235, 245, 0.62));
   --label-tertiary: light-dark(rgba(60, 60, 67, 0.36), rgba(235, 235, 245, 0.34));
   --label-quaternary: light-dark(rgba(60, 60, 67, 0.2), rgba(235, 235, 245, 0.18));
 
-  /* Fonds (hiérarchie systemBackground / grouped) */
+  /* Backgrounds (systemBackground / grouped hierarchy) */
   --bg: light-dark(#FFFFFF, #000000);
   --bg-secondary: light-dark(#F2F2F7, #1C1C1E);
   --bg-tertiary: light-dark(#FFFFFF, #2C2C2E);
   --bg-grouped: light-dark(#F2F2F7, #000000);
   --bg-grouped-secondary: light-dark(#FFFFFF, #1C1C1E);
   --bg-grouped-tertiary: light-dark(#F2F2F7, #2C2C2E);
-  --bg-elevated: light-dark(#FFFFFF, #1C1C1E);   /* feuilles, popovers en sombre */
+  --bg-elevated: light-dark(#FFFFFF, #1C1C1E);   /* sheets, popovers in dark mode */
 
-  /* Remplissages (systemFill) — pour contrôles neutres */
+  /* Fills (systemFill) — for neutral controls */
   --fill: light-dark(rgba(120, 120, 128, 0.2), rgba(120, 120, 128, 0.36));
   --fill-secondary: light-dark(rgba(120, 120, 128, 0.16), rgba(120, 120, 128, 0.32));
   --fill-tertiary: light-dark(rgba(118, 118, 128, 0.12), rgba(118, 118, 128, 0.24));
@@ -151,17 +151,17 @@
   --separator: light-dark(rgba(60, 60, 67, 0.18), rgba(84, 84, 88, 0.6));
   --separator-opaque: light-dark(#D8D8DC, #38383A);
 
-  /* ---------- Accent (UNE seule couleur d'accent par app) -------------- */
-  /* Défaut : bleu système ajusté pour WCAG (texte blanc 4,70:1).
-     --system-blue (#0088FF) reste réservé aux graphismes non textuels. */
+  /* ---------- Accent (ONE single accent color per app) ---------------- */
+  /* Default: system blue adjusted for WCAG (white text 4.70:1).
+     --system-blue (#0088FF) stays reserved for non-text graphics. */
   --accent: light-dark(#0071E3, #0A6FE0);
-  --accent-text: light-dark(#0066CC, #3D9BFF);   /* liens, texte teinté */
-  --accent-on: #FFFFFF;                          /* texte sur fond accent */
+  --accent-text: light-dark(#0066CC, #3D9BFF);   /* links, tinted text */
+  --accent-on: #FFFFFF;                          /* text on accent background */
   --accent-tint: color-mix(in srgb, var(--accent) 13%, transparent);
   --accent-tint-strong: color-mix(in srgb, var(--accent) 22%, transparent);
   --focus-ring: color-mix(in srgb, var(--system-blue) 70%, transparent);
 
-  /* ---------- Statuts (réservés, toujours avec icône + libellé) ------- */
+  /* ---------- Statuses (reserved, always with icon + label) ----------- */
   --status-ok: var(--system-green);
   --status-warn: var(--system-orange);
   --status-critical: var(--system-red);
@@ -170,9 +170,9 @@
   --status-warn-text: light-dark(#B25000, #FF9F0A);
   --status-critical-text: light-dark(#D70015, #FF6961);
 
-  /* ---------- Matériaux : Liquid Glass (couche fonctionnelle) ---------- */
-  /* --glass-tint : 0 = ultra-clair … 1 = entièrement teinté
-     (équivalent du curseur « Liquid Glass » d'iOS 27). */
+  /* ---------- Materials: Liquid Glass (functional layer) -------------- */
+  /* --glass-tint: 0 = ultra-clear … 1 = fully tinted
+     (equivalent of the iOS 27 "Liquid Glass" slider). */
   --glass-tint: 0.5;
   --glass-surface: light-dark(#FFFFFF, #1E1E22);
   --glass-alpha: calc(0.48 + var(--glass-tint) * 0.44);
@@ -186,37 +186,37 @@
     0 6px 20px -4px light-dark(rgba(16, 24, 40, 0.12), rgba(0, 0, 0, 0.55)),
     0 18px 48px -12px light-dark(rgba(16, 24, 40, 0.10), rgba(0, 0, 0, 0.5));
 
-  /* Variante « clear » : uniquement au-dessus de médias riches. */
+  /* "Clear" variant: only on top of rich media. */
   --glass-clear-fill: light-dark(rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.08));
   --glass-clear-blur: 8px;
-  --glass-dim: rgba(0, 0, 0, 0.35); /* HIG : voile 35 % si le contenu est clair */
+  --glass-dim: rgba(0, 0, 0, 0.35); /* HIG: 35 % dimming if the content is bright */
 
-  /* Matériaux standard (couche contenu) : ultra-thin → thick */
+  /* Standard materials (content layer): ultra-thin → thick */
   --material-ultrathin: light-dark(rgba(255, 255, 255, 0.4), rgba(28, 28, 30, 0.4));
   --material-thin: light-dark(rgba(255, 255, 255, 0.58), rgba(28, 28, 30, 0.58));
   --material-regular: light-dark(rgba(246, 246, 248, 0.76), rgba(28, 28, 30, 0.76));
   --material-thick: light-dark(rgba(242, 242, 245, 0.9), rgba(22, 22, 24, 0.9));
 
-  /* ---------- Ombres (sobres ; la profondeur vient du matériau) ------- */
+  /* ---------- Shadows (subtle; depth comes from the material) -------- */
   --shadow-1: 0 1px 2px light-dark(rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.4));
   --shadow-2: 0 2px 8px -2px light-dark(rgba(16, 24, 40, 0.1), rgba(0, 0, 0, 0.5));
   --shadow-3: 0 12px 40px -8px light-dark(rgba(16, 24, 40, 0.18), rgba(0, 0, 0, 0.7));
   --scrim: light-dark(rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.5));
 
-  /* ---------- Mouvement : ressorts (modèle durée + rebond Apple) ------ */
-  /* Générés par motion.js → springEasing(duration, bounce). ζ = 1 − bounce,
-     ω₀ = 2π / duration. La durée CSS = temps d'amortissement réel. */
+  /* ---------- Motion: springs (Apple duration + bounce model) -------- */
+  /* Generated by motion.js → springEasing(duration, bounce). ζ = 1 − bounce,
+     ω₀ = 2π / duration. The CSS duration = actual settling time. */
   --ease-smooth: linear(0, 0.004 1%, 0.019 2.3%, 0.042 3.5%, 0.079 5%, 0.161 7.8%, 0.362 13.8%, 0.465 17%, 0.557 20.3%, 0.637 23.5%, 0.706 26.8%, 0.767 30.3%, 0.817 33.8%, 0.86 37.5%, 0.899 42%, 0.929 46.8%, 0.953 52.3%, 0.971 58.5%, 0.983 65.5%, 0.991 73.8%, 1);
   --ease-snappy: linear(0, 0.006 1.3%, 0.025 2.8%, 0.056 4.3%, 0.095 5.8%, 0.19 8.8%, 0.41 15%, 0.519 18.3%, 0.616 21.5%, 0.695 24.5%, 0.762 27.5%, 0.822 30.8%, 0.871 34%, 0.912 37.5%, 0.944 41.3%, 0.97 45.5%, 0.988 50.2%, 0.999 55.8%, 1.006 68%, 1);
   --ease-bouncy: linear(0, 0.008 1.3%, 0.029 2.5%, 0.062 3.8%, 0.112 5.3%, 0.215 7.8%, 0.482 13.5%, 0.592 16%, 0.7 18.8%, 0.785 21.3%, 0.856 23.8%, 0.919 26.5%, 0.966 29.3%, 1.003 32.3%, 1.023 34.8%, 1.036 37.3%, 1.044 40%, 1.046 43%, 1.04 48.3%, 1.012 62.7%, 1.003 70.5%, 0.998 82.3%, 1);
-  --dur-smooth: 734ms;  /* smooth : 0,5 s, rebond 0 */
-  --dur-snappy: 557ms;  /* snappy : 0,4 s, rebond 0,15 */
-  --dur-bouncy: 818ms;  /* bouncy : 0,5 s, rebond 0,3 */
-  --dur-quick: 367ms;   /* micro-interactions : 0,25 s, rebond 0 (courbe smooth) */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1); /* opacités / couleurs */
+  --dur-smooth: 734ms;  /* smooth: 0.5 s, bounce 0 */
+  --dur-snappy: 557ms;  /* snappy: 0.4 s, bounce 0.15 */
+  --dur-bouncy: 818ms;  /* bouncy: 0.5 s, bounce 0.3 */
+  --dur-quick: 367ms;   /* micro-interactions: 0.25 s, bounce 0 (smooth curve) */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1); /* opacities / colors */
   --dur-fade: 180ms;
 
-  /* ---------- Data viz (palette validée CVD, ordre fixe) ------------- */
+  /* ---------- Data viz (CVD-validated palette, fixed order) ---------- */
   --chart-1: light-dark(#2A78D6, #3987E5);
   --chart-2: light-dark(#EB6834, #D95926);
   --chart-3: light-dark(#1BAF7A, #199E70);
@@ -231,17 +231,17 @@
   /* ---------- Z-index -------------------------------------------------- */
   --z-content: 1;
   --z-sticky: 10;
-  --z-chrome: 20;    /* barres, sidebar, tab bar */
+  --z-chrome: 20;    /* bars, sidebar, tab bar */
   --z-popover: 40;
   --z-sheet: 60;
   --z-toast: 80;
 }
 
-/* Thème forcé */
+/* Forced theme */
 :root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"] { color-scheme: dark; }
 
-/* Contraste augmenté (HIG : fournir une variante pour chaque couleur) */
+/* Increased contrast (HIG: provide a variant for every color) */
 @media (prefers-contrast: more) {
   :root {
     --label-secondary: light-dark(#3C3C43, rgba(235, 235, 245, 0.82));
@@ -258,13 +258,13 @@
   }
 }
 
-/* Transparence réduite : le verre devient opaque */
+/* Reduced transparency: glass becomes opaque */
 @media (prefers-reduced-transparency: reduce) {
   :root { --glass-tint: 1; --glass-alpha: 0.97; --glass-blur: 0px; }
 }
 :root[data-transparency="reduce"] { --glass-alpha: 0.97; --glass-blur: 0px; }
 
-/* Mouvement réduit : ressorts → fondus courts */
+/* Reduced motion: springs → short fades */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --ease-smooth: ease-out; --ease-snappy: ease-out; --ease-bouncy: ease-out;
@@ -273,8 +273,8 @@
   }
 }
 
-/* Densité desktop (pointeur fin, fenêtre large) : échelle intermédiaire
-   entre macOS (corps 13 pt) et iOS (17 pt). Corps 15 px. */
+/* Desktop density (fine pointer, wide window): intermediate scale
+   between macOS (13 pt body) and iOS (17 pt). 15 px body. */
 @media (min-width: 1000px) and (pointer: fine) {
   :root {
     --text-large-title: 1.875rem; /* 30 */
