@@ -7,8 +7,8 @@ import { startDemoServer } from '../examples/daybreak-coffee/server.mjs';
 const HELP = `mcp-voice-host: test any MCP server as an Alexa+-style voice add-on.
 
 Usage
-  npx mcp-voice-host --server <url> [options]
-  npx mcp-voice-host --demo
+  npx github:blanco1er/mcp-voice-host --server <url> [options]
+  npx github:blanco1er/mcp-voice-host --demo
 
 Options
   --server <url>        Streamable HTTP MCP endpoint, e.g. https://example.com/mcp

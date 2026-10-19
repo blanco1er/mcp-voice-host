@@ -599,7 +599,7 @@ async function connect(url) {
     const params2 = new URLSearchParams(location.search); params2.set('server', url); history.replaceState(null, '', `?${params2}`);
   } catch (e) {
     S.mcp.protocolVersion = null;
-    const hint = S.config.proxy ? '' : ' Opened without the CLI: the server must allow this page’s origin (CORS). Run “npx mcp-voice-host” to use the local proxy.';
+    const hint = S.config.proxy ? '' : ' Opened without the CLI: the server must allow this page’s origin (CORS). Run “npx github:blanco1er/mcp-voice-host” to use the local proxy.';
     setConn('error', `${e.message}${e.code === 'network' ? hint : ''}`);
     showSession();
   }
