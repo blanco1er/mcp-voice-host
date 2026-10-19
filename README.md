@@ -1,5 +1,10 @@
 # mcp-voice-host
 
+[![test](https://github.com/blanco1er/mcp-voice-host/actions/workflows/test.yml/badge.svg)](https://github.com/blanco1er/mcp-voice-host/actions/workflows/test.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Node 20+](https://img.shields.io/badge/node-%E2%89%A520-brightgreen.svg)
+![Zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)
+
 **Test any MCP server as an Alexa+-style voice add-on, in your browser, with no account and no build step.**
 
 `mcp-voice-host` is a small, framework-free, voice-first [MCP Apps](https://github.com/modelcontextprotocol/ext-apps) host. Point it at any Streamable HTTP MCP server, talk to it (or type), and see what an Alexa+ device would say and show: on an Echo Show 15, an Echo Show 8, the phone app, and a screenless Echo Dot where the voice has to carry everything. A lint panel checks every tool result against Amazon's public Alexa+ add-on design guide, with a link to the exact guideline.
@@ -59,17 +64,39 @@ So most MCP developers today cannot check, before they apply, whether their serv
 npx github:blanco1er/mcp-voice-host --demo
 #   then say or type: "find iced drinks", "order a large oat latte", "yes", "reorder my usual"
 
-# 2. The official MCP "everything" reference server
+# 2. The official MCP "everything" reference server (run it in a second terminal)
 PORT=3001 npx @modelcontextprotocol/server-everything streamableHttp
 npx github:blanco1er/mcp-voice-host --server http://localhost:3001/mcp
 #   "echo hello from the kitchen", "get sum of 2 and 3", "trigger elicitation request"
 
-# 3. A live Alexa+ add-on built for the Amazon "Build, Ship, Shape" hackathon (MCP Apps cards)
+# 3. A live Alexa+ add-on built for the Amazon "Build, Ship, Shape" hackathon (23 tools, MCP Apps cards)
 npx github:blanco1er/mcp-voice-host --server https://fonzkp2f5pszfit6xmqqiw7qdm0dybyu.lambda-url.us-east-1.on.aws/mcp
-#   "household status"
+#   tools and cards are listed and linted; calling a tool answers HTTP 401, because this add-on
+#   requires Alexa account linking (pass your own token with --bearer-env if you have one)
 ```
 
-From a clone: `node bin/mcp-voice-host.mjs --demo`. Without the CLI, serve `web/` with any static server and open `index.html?server=<url>` (the MCP server must then allow your page's origin, and Views are isolated by an opaque origin instead of a second one).
+From a clone (no install step):
+
+```sh
+git clone https://github.com/blanco1er/mcp-voice-host && cd mcp-voice-host
+npm test
+npm run demo                      # same as: node bin/mcp-voice-host.mjs --demo
+```
+
+### Test your own server
+
+- **Streamable HTTP server, local or remote:** `--server http://localhost:8000/mcp` (most servers serve MCP on `/mcp`).
+- **Behind a token:** `MY_TOKEN=… npx github:blanco1er/mcp-voice-host --server <url> --bearer-env MY_TOKEN`, or `--header "X-Api-Key: …"`. Both are added by the local proxy and never reach the page.
+- **stdio-only server** (most servers in the MCP registry): put a stdio-to-HTTP bridge in front of it, for example [supergateway](https://github.com/supercorp-ai/supergateway):
+  ```sh
+  npx -y supergateway --stdio "npx -y @modelcontextprotocol/server-everything" --outputTransport streamableHttp --port 8000
+  npx github:blanco1er/mcp-voice-host --server http://localhost:8000/mcp
+  ```
+- Then talk or type, switch devices (Show 15, Show 8, phone, Dot), and open the lint panel (<kbd>L</kbd>) to see what a voice-only device would struggle with.
+
+![The official MCP "everything" server in the host: the echo answer on an Echo Show 15 frame and every JSON-RPC message in the traffic inspector](docs/screenshots/08-everything-server.png)
+
+Without the CLI, serve `web/` with any static server and open `index.html?server=<url>` (the MCP server must then allow your page's origin, and Views are isolated by an opaque origin instead of a second one).
 
 | Option | |
 |---|---|
@@ -172,7 +199,7 @@ The demo's `quick_reorder` tool breaks several rules on purpose, so you can see 
 ## Development
 
 ```sh
-npm test                       # 46 tests, node --test, no dependencies
+npm test                       # 47 tests, node --test, no dependencies
 node examples/daybreak-coffee/server.mjs 4290   # the demo server alone
 PLAYWRIGHT_CORE=… CHROME_PATH=… node scripts/screenshots.mjs   # regenerate docs/screenshots
 ```
@@ -198,7 +225,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). New lint rules need a source link and a 
 
 ## Hackathon note
 
-Built as an open-source companion to *Mandat for Alexa+*, our entry in the Amazon "Build, Ship, Shape" hackathon on Devpost. The [official rules](https://amazonappdev2026.devpost.com/rules) define the Open Source mini-challenge as: "Create a new, additional open-source project or contribute to an existing public repository during the hackathon window, alongside a primary track submission." Their judging guidance names "meaningful feature addition with tests, bug fix that unblocks other developers, new integration pattern" as creative contributions. This repository was started on 18 October 2026, inside the submission window.
+Built as an open-source companion to *Mandat for Alexa+*, our entry in the Amazon "Build, Ship, Shape" hackathon on Devpost. The [official rules](https://amazonappdev2026.devpost.com/rules) define the Open Source mini-challenge as: "Create a new, additional open-source project or contribute to an existing public repository during the hackathon window, alongside a primary track submission." Their judging guidance names "meaningful feature addition with tests, bug fix that unblocks other developers, new integration pattern" as creative contributions. This repository was started on 18 October 2026, inside the submission window (31 August to 23 October 2026).
 
 ## License
 

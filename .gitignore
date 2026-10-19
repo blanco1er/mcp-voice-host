@@ -3,3 +3,6 @@ node_modules/
 *.log
 .env
 .env.*
+
+# Devpost draft for the owner (kept locally, not published)
+DEVPOST-OSS.md
