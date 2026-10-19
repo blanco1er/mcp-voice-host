@@ -109,6 +109,28 @@ test('JSON-RPC errors become McpError; HTTP errors explain themselves', async (t
   await assert.rejects(down.initialize(), (e) => e.code === 'network');
 });
 
+test('HTTP errors with a JSON body that is not JSON-RPC (account linking, OAuth) keep the server\'s words', async () => {
+  const replies = [
+    // account linking: "error" is a string, not a JSON-RPC error object
+    [401, { error: 'unauthorized', message: 'Access token required to use this tool. Link the add-on first.', jsonrpc: '2.0', id: 1 }],
+    // OAuth middleware: no id at all
+    [401, { error: 'invalid_token', error_description: 'The access token expired' }],
+    [502, { message: 'Internal server error' }],
+  ];
+  for (const [status, body] of replies) {
+    const fetch = async () => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+    const c = new McpHttpClient('http://example.test/mcp', { fetch });
+    await assert.rejects(c.callTool('anything', {}), (e) => {
+      assert.ok(e instanceof McpError);
+      assert.equal(e.code, status);
+      assert.doesNotMatch(e.message, /Unknown error|no response/);
+      assert.match(e.message, new RegExp(`^HTTP ${status}`));
+      assert.ok(e.message.includes(body.message || body.error_description), e.message);
+      return true;
+    });
+  }
+});
+
 test('pings and roots/list from the server are answered without the UI', async () => {
   const c = new McpHttpClient('http://unused');
   assert.deepEqual(await c.answerServerRequest({ method: 'ping' }), {});

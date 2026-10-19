@@ -140,6 +140,12 @@ export class McpHttpClient {
       let reply;
       try { reply = JSON.parse(text); } catch { throw new McpError(`${message.method}: invalid JSON from server (HTTP ${res.status})`, { status: res.status }); }
       const list = Array.isArray(reply) ? reply : [reply];
+      if (res.status >= 400 && !list.some((m) => m && m.id === expectId && m.error && typeof m.error === 'object')) {
+        // An HTTP error whose JSON body is not a JSON-RPC error for this request (OAuth middleware, API gateways,
+        // account linking): report the status and the server's own words instead of "Unknown error".
+        this.onLog('in', reply, { ms: Date.now() - started, http: res.status });
+        return { jsonrpc: '2.0', id: expectId ?? null, error: { code: res.status, message: httpMessage(res.status, text, serverWords(reply)), data: reply } };
+      }
       let mine = null;
       for (const msg of list) {
         this.onLog('in', msg, { ms: Date.now() - started });
@@ -180,7 +186,10 @@ export class McpHttpClient {
   async request(method, params = {}, opts = {}) {
     const reply = await this.post({ jsonrpc: '2.0', id: ++this.id, method, params }, opts);
     if (!reply) throw new McpError(`${method}: no response`);
-    if (reply.error) throw new McpError(reply.error.message || 'Unknown error', reply.error);
+    if (reply.error) {
+      const e = typeof reply.error === 'object' ? reply.error : { message: String(reply.error) };
+      throw new McpError(e.message || 'Unknown error', e);
+    }
     return reply.result;
   }
 
@@ -234,13 +243,21 @@ export class McpHttpClient {
   }
 }
 
-function httpMessage(status, body) {
+// The human-readable part of a non-JSON-RPC error body: {error: {message}}, OAuth's {error_description}, {message}.
+function serverWords(body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return '';
+  const e = body.error;
+  return (e && typeof e === 'object' && e.message) || body.error_description || body.message || (typeof e === 'string' ? e : '') || '';
+}
+
+function httpMessage(status, body, said = '') {
   const hint = {
     401: 'The server needs authorization (add a bearer token).',
     403: 'The server refused this request (check the token, or the Origin: try the local proxy).',
     404: 'No MCP endpoint at this URL (most servers use /mcp).',
     405: 'This URL does not accept POST: it is probably not a Streamable HTTP MCP endpoint.',
   }[status];
-  const detail = String(body || '').replace(/\s+/g, ' ').trim().slice(0, 160);
+  const detail = String(said || body || '').replace(/\s+/g, ' ').trim().slice(0, 160);
+  if (said) return `HTTP ${status}${hint ? `: ${hint} Server: ${detail}` : ` ${detail}`}`;
   return `HTTP ${status}${hint ? `: ${hint}` : ''}${detail && !hint ? ` ${detail}` : ''}`;
 }
